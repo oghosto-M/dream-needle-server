@@ -8,8 +8,8 @@ exports.get = async (req, res) => {
     const c = new Captcha({
       length: 4,
       size: {
-        width: 200,
-        height: 75,
+        width: 100,
+        height: 50,
       },
     });
     await c.toBase64(async (err, base64) => {
@@ -17,13 +17,13 @@ exports.get = async (req, res) => {
         res.status(500).send(err);
       } else {
         res.cookie("valueCode", bcrypt.hashSync(c.value, 11), {
-          maxAge: 2 * 60 * 1000,
+          maxAge: 7 * 60 * 1000,
           httpOnly: true,
-          secure: false,
         });
         res.json({
           message: "دریافت کد امنیتی با موفقیت انجام شد",
           src: base64,
+          value: c.value,
         });
       }
     });
@@ -34,23 +34,28 @@ exports.get = async (req, res) => {
 exports.validate = async (req, res) => {
   try {
     if (req.cookies.valueCode) {
-      if (req.body.value && req.body.phone) {
+      if (req.body?.valueCode && req.body?.phone) {
         const data = await bcrypt.compare(
-          String(req.body.value),
+          String(req.body.valueCode),
           String(req.cookies.valueCode)
         );
         const user = await userModel.findOne({ phone: req.body.phone }).lean();
         if (data) {
+          res.clearCookie("valueCode");
+          res.cookie("captcha" , "true" , {
+            maxAge: 7 * 60 * 1000,
+            httpOnly: true,
+          });
           res.json({
             message: "کد امنیتی معتبر است",
-            is_new: user ? true : false,
+            is_new: !user,
           });
         } else {
           res.status(401).json({
             message: "کد امنیتی معتبر نیست",
           });
         }
-      }else{
+      } else {
         res.status(422).json({
           message: "درخواست شما باید شامل کد امنیتی و شماره موبایل باشد",
         });

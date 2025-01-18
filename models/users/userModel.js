@@ -47,7 +47,15 @@ const userModel = new Schema(
       required : false ,
       minlength : 10,
       maxlength : 250 ,
-    }
+    },
+    phone_verify :{
+      type: Boolean,
+      required: true,
+    },
+    email_verify :{
+      type: Boolean,
+      required: true,
+    },
   },
   {
     timestamps: true,
