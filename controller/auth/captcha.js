@@ -42,7 +42,7 @@ exports.validate = async (req, res) => {
         const user = await userModel.findOne({ phone: req.body.phone }).lean();
         if (data) {
           res.clearCookie("valueCode");
-          res.cookie("captcha" , "true" , {
+          res.cookie("captcha" , user.phone , {
             maxAge: 7 * 60 * 1000,
             httpOnly: true,
           });
@@ -70,4 +70,3 @@ exports.validate = async (req, res) => {
   }
 };
 
-// register
