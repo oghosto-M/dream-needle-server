@@ -1,35 +1,31 @@
+
 const express = require("express");
-const rateLimit = require("express-rate-limit")
+const rateLimit = require("express-rate-limit");
 require("dotenv").config();
-const userModel = require("./../../models/users/userModel");
 const captcha = require("./../../controller/auth/captcha");
-const bcrypt = require("bcrypt");
-const transporter = require("./../../configs/mail/nodemailer");
-const templateLogin = require("./../../configs/mail/template/template");
-const jwt = require("jsonwebtoken");
 const authRouter = express.Router();
 const login = require("./../../controller/auth/login");
 const captchaValidation = require("./../../middleware/captchaValidation");
-
+const register = require("../../controller/auth/register");
+const authorizationUser = require("./../../middleware/authorizationUser");
+const transporter = require("../../configs/mail/nodemailer");
+const templateLogin = require("./../../configs/mail/template/template");
+const userModel = require("./../../models/users/userModel");
+const bcrypt = require("bcrypt")
 
 const limiter = rateLimit({
-  windowMs:  2 * 60 * 1000, 
-  max: 1, 
+  windowMs: 2 * 60 * 1000,
+  max: 1,
   handler: (req, res) => {
     res.status(429).json({
-      message: 'در هر دو دقیقه فقط یک بار میتونید درخواست بدید'
+      message: "در هر دو دقیقه فقط یک بار میتونید درخواست بدید",
     });
-  }
+  },
 });
-
-
 
 // code captcha
 authRouter.get("/captcha", captcha.get);
 authRouter.post("/captcha", captcha.validate);
-
-// register
-authRouter.post("/register", captchaValidation, captcha.validate);
 
 // login
 authRouter.post(
@@ -37,19 +33,52 @@ authRouter.post(
   captchaValidation,
   login.loginWithPassword
 );
-authRouter.get("/loginWithEmail", limiter , captchaValidation, async (req, res) => {
+authRouter.get(
+  "/loginWithEmail",
+  limiter,
+  captchaValidation,
+  login.loginWithEmail_getCode
+);
+authRouter.post(
+  "/loginWithEmail",
+  captchaValidation,
+  login.loginWithEmail_validation
+);
+// authRouter.post("/loginWithPhone", captcha.validate);
+
+// register
+authRouter.post("/register", captchaValidation, register.register);
+
+// forgot password
+authRouter.get("/forgotPassword", captchaValidation , async(req , res)=>{
   try {
-    const user = await userModel.findOne({ phone: req.cookies.captcha }).lean();
+    const user = await userModel
+      .findOne({ phone: req.cookies.captcha })
+      .lean();
     if (user) {
-     const {email} = user
-     const random_code = Math.floor(Math.random() * 100000)
-     const info = await transporter.sendMail(
-      templateLogin.templateLogin({
-        code: random_code,
-        email: email,
-      })
-    );
-    res.send(info);
+      const { email } = user;
+      const random_code = Math.floor(10000 + Math.random() * 90000);
+      const hashed_random_code = await bcrypt.hash(String(random_code), 11);
+
+      await transporter
+        .sendMail(
+          templateLogin.templateLogin({
+            code: random_code,
+            email: email,
+          })
+        )
+        .then(() => {
+          res.cookie("code_Email", hashed_random_code, {
+            maxAge: 2 * 60 * 1000,
+            httpOnly: true,
+          });
+          res.json({
+            message: "کد برای ایمیل شما ارسال شد",
+          });
+        })
+        .catch((response) => {
+          res.status(500).send("none login", response);
+        });
     } else {
       res.status(404).json({
         message: "کاربری با این شماره تلفن موجود نیست",
@@ -59,10 +88,44 @@ authRouter.get("/loginWithEmail", limiter , captchaValidation, async (req, res) 
     res.status(500).send(err);
   }
 });
-// authRouter.post("/loginWithPhone", captcha.validate);
+authRouter.post("/forgotPassword", authorizationUser, async(req , res)=>{
+  try {
+    if (req.cookies.code_Email) {
+      if (req.body.code_Email) {
+        const validate = await bcrypt.compare(
+          String(req.body.code_Email),
+          String(req.cookies.code_Email)
+        );
+        if (validate === true) {
+          const user = userModel.findOne({ phone: req.cookies.captcha }).lean();
+          if (user) {
+            if (condition) {
+              
+            }
+          } else {
+            res.status(404).json({
+              message: "کاربری با این شماره تلفن وجود ندارد",
+            });
+          }
+        } else {
+          res.status(401).json({
+            message: "کد نا معتبر است",
+          });
+        }
+      } else {
+        res.status(422).json({
+          message: "درخواست شما باید شامل ایمیل باشد",
+        });
+      }
+    } else {
+      res.status(401).json({
+        message: "مدت کد ایمیل شما منقضی شده است",
+      });
+    }
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
 
-// register
-
-// authRouter.post("/register", );
 
 module.exports = authRouter;

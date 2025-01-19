@@ -19,7 +19,7 @@ const userModel = new Schema(
       type: Number,
       required: true,
       min: 0,
-      max: 1,
+      max: 3,
     },
     email: {
       type: String,
