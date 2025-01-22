@@ -21,7 +21,8 @@ async function authorization(req, res, next) {
     }
   } else {
     res.status(403).json({
-      message: "اجازه دست رسی به این بخش را ندارید",
+      message: "شما وارد نیستید",
+      is_login : false
     });
   }
 }

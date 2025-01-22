@@ -6,7 +6,6 @@ const transporter = require("../../configs/mail/nodemailer");
 const templateLogin = require("./../../configs/mail/template/template");
 
 
-
 exports.loginWithPassword = async (req, res) => {
   try {
     const { phone, password } = req.body;

@@ -1,33 +1,59 @@
-// import and configuration express
+
+// import and configoration express
 const express = require("express");
 const app = express();
 
-// import and configuration .env
+// import and configoration .env
 require("dotenv").config();
 
 //connect to db
 require("./configs/db/db");
 
-// CORS configoration
+// cookie-parser configoration
 const cookieParser = require("cookie-parser");
-const { default: helmet } = require("helmet");
-const cors = require("cors");
-app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+app.use(cookieParser());
 
-// configs form data
+// helmet configoration
+const helmet = require("helmet");
+app.use(helmet());
+
+// CORS configoration
+const cors = require("cors");
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://dream-needle.ir",
+  "https://www.dream-needle.ir",
+];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
+
+// body parser
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
-app.use(helmet());
+
+// middleware import
+const authorizationAdmin = require("./middleware/authorizationAdmin")
+const authorizationUser = require("./middleware/authorizationUser")
+const limiterUser = require("./configs/limiter/user/limiterUser")
 
 // import route
 const authRouter = require("./router/auth/authRouter");
 const usersRouter = require("./router/user/userRouter");
 
 // express router
-// app.router("/api/auth" , registerRouter)
 app.use("/api/auth", authRouter);
-app.use("/api/users", usersRouter);
+app.use("/api/users", limiterUser , authorizationUser , usersRouter);
 
 // app listen
 app.listen(process.env.PORT, () => {

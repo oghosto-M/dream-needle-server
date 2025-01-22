@@ -40,9 +40,11 @@ exports.validate = async (req, res) => {
           String(req.cookies.valueCode)
         );
         const user = await userModel.findOne({ phone: req.body.phone }).lean();
+        console.log(user);
+        
         if (data) {
           res.clearCookie("valueCode");
-          res.cookie("captcha" , user.phone , {
+          res.cookie("captcha" , user ? user.phone : "no_value" , {
             maxAge: 7 * 60 * 1000,
             httpOnly: true,
           });
@@ -62,7 +64,7 @@ exports.validate = async (req, res) => {
       }
     } else {
       res.status(401).json({
-        message: "مدت کد امنیتی تمام شده لطفا دوباره درخواست بدید",
+        message: "مدت کد امنیتی تمام شده دوباره درخواست بدید",
       });
     }
   } catch (err) {
