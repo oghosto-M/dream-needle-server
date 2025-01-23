@@ -100,16 +100,16 @@ exports.loginWithEmail_validation =  async (req, res) => {
           String(req.cookies.code_Email)
         );
         if (validate === true) {
-          const user = userModel.findOne({ phone: req.cookies.captcha }).lean();
+          const user = await userModel.findOne({ phone: req.cookies.captcha }).lean();
 
           if (user) {
             const token = await jwt.sign(
-              { id: user.id, role: user.role },
+              { id: user._id, role: user.role },
               process.env.SECRET_KEY,
               {
                 expiresIn: "3h",
               }
-            );
+            );            
             res.clearCookie("captcha");
             res.clearCookie("code_Email");
             res.cookie("token", token, {
@@ -131,7 +131,7 @@ exports.loginWithEmail_validation =  async (req, res) => {
         }
       } else {
         res.status(422).json({
-          message: "درخواست شما باید شامل ایمیل باشد",
+          message: "درخواست شما باید شامل کد ایمیل باشد",
         });
       }
     } else {

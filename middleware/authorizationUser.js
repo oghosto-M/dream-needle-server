@@ -4,19 +4,19 @@ require("dotenv").config();
 
 async function authorization(req, res, next) {
   if (req.cookies.token) {
-    const token = jwt.verify(req.cookies.token, process.env.SECRET_KEY);
+    const token = await jwt.verify(req.cookies.token, process.env.SECRET_KEY);    
     if (token) {
-      const user = await userModle.findById(token.id).lean();
+      const user = await userModle.findById(token.id).lean();      
       if (user) {
         next();
       } else {
         res.status(403).json({
-          message: "اجازه دست رسی به این بخش را ندارید",
+          message: "اجازه دست رسی به این بخش را ندارید 1",
         });
       }
     } else {
       res.status(403).json({
-        message: "اجازه دست رسی به این بخش را ندارید",
+        message: "اجازه دست رسی به این بخش را ندارید2",
       });
     }
   } else {
