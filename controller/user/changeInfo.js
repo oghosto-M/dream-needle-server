@@ -18,8 +18,6 @@ exports.change_password_with_email = async (req, res) => {
       const limiter = checkRateLimit(req.ip);
       if (limiter) {
         const user = await userModel.findById(token.id).lean();
-        console.log(user);
-
         if (user) {
           const hashed_random_code = await bcrypt.hash(String(random_code), 11);
           await transporter
@@ -57,8 +55,6 @@ exports.change_password_with_email = async (req, res) => {
           String(req.body.email_code),
           String(req.cookies.code_Email_Change_password)
         );
-        console.log(validate);
-
         if (validate === true) {
           const hashed_password = await bcrypt.hash(req.body.password, 11);
           await userModel

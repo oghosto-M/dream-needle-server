@@ -3,10 +3,12 @@ const userModle = require("./../models/users/userModel");
 require("dotenv").config();
 
 async function authorization(req, res, next) {
+  console.log(req.cookies);
+
   if (req.cookies.token) {
-    const token = await jwt.verify(req.cookies.token, process.env.SECRET_KEY);    
+    const token = await jwt.verify(req.cookies.token, process.env.SECRET_KEY);
     if (token) {
-      const user = await userModle.findById(token.id).lean();      
+      const user = await userModle.findById(token.id).lean();
       if (user) {
         next();
       } else {
@@ -22,7 +24,7 @@ async function authorization(req, res, next) {
   } else {
     res.status(403).json({
       message: "شما وارد نیستید",
-      is_login : false
+      is_login: false,
     });
   }
 }

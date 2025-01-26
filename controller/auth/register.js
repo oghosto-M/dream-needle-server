@@ -101,9 +101,6 @@ exports.register_sendCode_email =  async (req , res)=>{
       const random_code = Math.floor(10000 + Math.random() * 90000);
       const hashed_random_code = await bcrypt.hash(String(random_code), 11);
       const user =await userModel.findOne({email : req.body.email}).lean()
-      
-console.log(user);
-
 
       if (!user) {
         

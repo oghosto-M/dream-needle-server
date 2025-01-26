@@ -2,7 +2,7 @@ const userModel = require("./../../models/users/userModel");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
-exports.getInfo = async (req, res) => {
+exports.getInfo = async (req, res) => {  
     try {
       const token = jwt.decode(req.cookies.token, process.env.SECRET_KEY);
       if (token) {

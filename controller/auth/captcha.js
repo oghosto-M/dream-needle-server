@@ -39,9 +39,7 @@ exports.validate = async (req, res) => {
           String(req.body.valueCode),
           String(req.cookies.valueCode)
         );
-        const user = await userModel.findOne({ phone: req.body.phone }).lean();
-        console.log(user);
-        
+        const user = await userModel.findOne({ phone: req.body.phone }).lean();        
         if (data) {
           res.clearCookie("valueCode");
           res.cookie("captcha" , user ? user.phone : "no_value" , {
