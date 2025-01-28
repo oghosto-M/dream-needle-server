@@ -39,6 +39,7 @@ exports.register = async (req, res) => {
                     phone,
                     password: hashed_password,
                     role: 3,
+                    address : "بدون آدرس سکونت",
                     phone_verify: false,
                     email_verify: true,
                   })
@@ -133,4 +134,4 @@ exports.register_sendCode_email =  async (req , res)=>{
     } catch (err) {
       res.status(500).send(err)
     }  
-  }
+}
