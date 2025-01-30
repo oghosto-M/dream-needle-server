@@ -1,38 +1,57 @@
 const express = require("express");
 const userRouter = express.Router();
-const authorizationUser = require("./../../middleware/authorizationUser");
+const authorizationManagement = require("./../../middleware/authorizationManagement");
+const authorizationAdmin = require("./../../middleware/authorizationAdmin");
+const authorizationCode_0 = require("./../../middleware/authorizationCode_0");
+const idMoongoseValidator = require("./../../middleware/idMoongoseValidator");
 const userInformation = require("./../../controller/user/getInformation");
 const userChangeInformation = require("./../../controller/user/changeInfo");
-
-userRouter.get("/is_login", userInformation.getInfo);
-userRouter.get("/logout", userInformation.logOut);
+const limiter_code_0 = require("./../../configs/limiter/user/code_0Limiter");
 
 userRouter.post(
-  "/change_user_information",
-  authorizationUser,
-  userChangeInformation.change_user_information
+  "/set_admin",
+  limiter_code_0,
+  authorizationCode_0,
+  userInformation.set_admin
+);
+
+userRouter.get("/is_login", userInformation.getInfo);
+userRouter.get("/logout" , userInformation.logOut);
+
+// management
+userRouter.put(
+  "/:id",
+  authorizationManagement,
+  idMoongoseValidator,
+  userInformation.editUser
+);
+// admin
+userRouter.get("/", authorizationAdmin, userInformation.getAll);
+userRouter.get(
+  "/:id",
+  authorizationAdmin,
+  idMoongoseValidator,
+  userInformation.getOne
 );
 
 userRouter.post(
+  "/change_user_information",
+  userChangeInformation.change_user_information
+);
+userRouter.post(
   "/change_password_with_email/:action",
-  authorizationUser,
   userChangeInformation.change_password_with_email
 );
 userRouter.post(
   "/change_password_with_password",
-  authorizationUser,
   userChangeInformation.change_password_with_password
 );
-
 userRouter.post(
   "/change_email/:action",
-  authorizationUser,
   userChangeInformation.change_email
 );
-
 userRouter.post(
   "/change_phone/:action",
-  authorizationUser,
   userChangeInformation.change_phone
 );
 

@@ -2,15 +2,17 @@ const moongose = require("mongoose");
 
 function idMoongoseValidator(req, res, next) {
   if (req.params.id) {
-    const id_valid = moongose.Types.ObjectId.isValid(require.params.id);
-    if (id_valid) {
+    const id_valid = moongose.Types.ObjectId.isValid(req.params.id);
+    if (id_valid === true) {
       return next();
     } else {
       return res.status(400).json({
-        message: "This ID is not in the correct format",
+        message: "این شناسه فرمت صحیح ندارم",
       });
     }
   } else {
     next();
   }
 }
+
+module.exports = idMoongoseValidator;
