@@ -13,8 +13,26 @@ const bcrypt = require("bcrypt");
 const categoryModel = require("./../../models/categories/categoryModle");
 
 categoryRouter.get("/",  async (req, res) => {});
-
-categoryRouter.get("/:id", async (req, res) => {});
+  try {
+    const category =  await categoryModel.find({}).lean()
+    res.json({
+      message : "دسته بندی های شما با موفقیت دریافت شد",
+      data : category
+    })
+  } catch (err) {
+    res.status(500).send(err)
+  }
+categoryRouter.get("/:id", async (req, res) => {
+  try {
+    const category =  await categoryModel.findById(req.params.id).lean()
+    res.json({
+      message : "دسته بندی با موفقیت دریافت شد",
+      data : category
+    })
+  } catch (err) {
+    res.status(500).send(err)
+  }
+});
 
 categoryRouter.post(
   "/",
@@ -27,6 +45,8 @@ categoryRouter.put(
   authorizationManagement,
   categoryController.update_category
 );
-categoryRouter.delete("/:id", async (req, res) => {});
+categoryRouter.delete("/:id", async (req, res) => {
+  
+});
 
 module.exports = categoryRouter;
