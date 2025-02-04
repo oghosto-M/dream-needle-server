@@ -1,9 +1,10 @@
+import { Request, Response } from "express";
 const Captcha = require("node-captcha-generator");
-const bcrypt = require("bcrypt");
-const userModel = require("./../../models/users/userModel");
+import bcrypt from "bcrypt"
+import userModel from "./../../models/users/userModel";
 
 // code captcha
-exports.get = async (req, res) => {
+export const get = async (req:Request, res:Response) => {
   try {
     const c = new Captcha({
       length: 4,
@@ -12,7 +13,7 @@ exports.get = async (req, res) => {
         height: 50,
       },
     });
-    await c.toBase64(async (err, base64) => {
+    await c.toBase64(async (err:any, base64:string) => {
       if (err) {
         res.status(500).send(err);
       } else {
@@ -31,7 +32,7 @@ exports.get = async (req, res) => {
     res.status(500).send(err);
   }
 };
-exports.validate = async (req, res) => {
+export const validate = async (req:Request, res:Response) => {
   try {
     if (req.cookies.valueCode) {
       if (req.body?.valueCode && req.body?.phone) {

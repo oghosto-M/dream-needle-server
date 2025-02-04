@@ -7,7 +7,7 @@ const app = express();
 require("dotenv").config()
 
 //connect to db
-require("./src/configs/db/db")
+require("./configs/db/db")
 
 // cookie-parser configoration
 import cookieParser from "cookie-parser";
@@ -27,7 +27,7 @@ const allowedOrigins = [
 ];
 
 const corsOptions = {
-  origin: function (origin:any, callback:any) {
+  origin: function (origin: any, callback: any) {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -45,13 +45,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // middleware import
-import authorizationAdmin from "./middleware/authorizationAdmin" ;
-import authorizationUser from "./middleware/authorizationUser" ;
-import idMoongoseValidator from "./middleware/idMoongoseValidator" ;
-import limiterUser from "./configs/limiter/user/limiterUser" ;
+import authorizationAdmin from "./middleware/authorizationAdmin";
+import authorizationUser from "./middleware/authorizationUser";
+// const idMoongoseValidator = require("./middleware/idMoongoseValidator")
+import limiterUser from "./configs/limiter/user/limiterUser";
 
 // use middleware
-app.use(idMoongoseValidator)
 
 // import route
 import categoryRouter from "./router/category/categoryRouter";
@@ -61,7 +60,7 @@ import authRouter from "./router/auth/authRouter";
 
 // express router
 app.use("/api/auth", authRouter);
-app.use("/api/users", limiterUser , authorizationUser , usersRouter);
+app.use("/api/users", limiterUser, authorizationUser, usersRouter);
 app.use("/api/categories", limiterUser , categoryRouter);
 
 // app listen

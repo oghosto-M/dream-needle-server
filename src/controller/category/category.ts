@@ -1,9 +1,9 @@
-import { Request , Response } from "express";
+import { Request, Response } from "express";
 import moongose from "mongoose";
 import validator from "./../../validation/category/categoryValidator";
 import categoryModel from "./../../models/categories/categoryModle";
 
-exports.create_category = async (req:Request, res:Response) => {
+export const create_category = async (req: Request, res: Response) => {
   try {
     const validation_category = await validator(req.body);
     if (validation_category === true) {
@@ -50,8 +50,7 @@ exports.create_category = async (req:Request, res:Response) => {
     res.status(500).send(err);
   }
 };
-
-exports.update_category = async (req:Request, res:Response) => {
+export const update_category = async (req: Request, res: Response) => {
   try {
     if (req.body.title && req.body.title.length >= 2) {
       const id = req.params.id;
@@ -74,18 +73,7 @@ exports.update_category = async (req:Request, res:Response) => {
     res.status(500).send(500);
   }
 };
-exports.get_all_category = async (req:Request, res:Response) => {
-  try {
-    const category = await categoryModel.findById(req.params.id).lean();
-    res.json({
-      message: "دسته بندی با موفقیت دریافت شد",
-      data: category,
-    });
-  } catch (err) {
-    res.status(500).send(err);
-  }
-} 
-exports.get_one_category = async (req:Request, res:Response) => {
+export const get_all_category = async (req: Request, res: Response) => {
   try {
     const category = await categoryModel.find({}).lean();
     res.json({
@@ -94,5 +82,16 @@ exports.get_one_category = async (req:Request, res:Response) => {
     });
   } catch (err) {
     res.status(500).send(err);
+  }
+}
+export const get_one_category = async (req: Request, res: Response) => {
+  try {
+    const category = await categoryModel.findById(req.params.id).lean();
+    res.json({
+      message: "دسته بندی با موفقیت دریافت شد",
+      data: category,
+    });
+  } catch (err) {
+    res.status(500).send(req.params);
   }
 } 

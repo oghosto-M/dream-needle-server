@@ -43,7 +43,8 @@ const userModel = new Schema(
     },
     address: {
       type: String,
-      required: false,
+      required: true,
+      default : "مشخصاتی ثبت نشده",
       minlength: 10,
       maxlength: 250,
     },

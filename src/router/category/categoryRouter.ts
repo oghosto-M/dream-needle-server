@@ -1,23 +1,25 @@
 import express from "express";
 const categoryRouter = express.Router();
-import categoryController from "../../controller/category/category";
+import {get_all_category , create_category , get_one_category , update_category} from "../../controller/category/category";
 import authorizationManagement from "../../middleware/authorizationManagement";
+import idMoongoseValidator from "../../middleware/idMoongoseValidator";
 import limiter from "../../configs/limiter/user/limiterUser";
 
 
-categoryRouter.get("/",categoryController.get_all_category);
-categoryRouter.get("/:id",categoryController.get_one_category);
+categoryRouter.get("/", get_all_category);
+categoryRouter.get("/:id", idMoongoseValidator ,  get_one_category);
 
 categoryRouter.post(
   "/",
   limiter,
   authorizationManagement,
-  categoryController.create_category
+  create_category
 );
 categoryRouter.put(
   "/:id",
+  idMoongoseValidator ,
   authorizationManagement,
-  categoryController.update_category
+  update_category
 );
 categoryRouter.delete("/:id");
 

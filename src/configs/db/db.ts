@@ -5,9 +5,7 @@ import moongose from "mongoose"
 require("dotenv").config();
 
 // connect db
-const connection = ()=>{
-
-  return moongose
+  const connect = moongose
   .connect(process.env.LINK_DB as string)
   .then(() => {
     console.log("moongose is ready");
@@ -15,7 +13,6 @@ const connection = ()=>{
   .catch((err) => {
     console.log(err);
   });
-}
 
 // export db function
-export default connection
+module.exports = connect

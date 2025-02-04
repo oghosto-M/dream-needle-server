@@ -1,12 +1,14 @@
+import { Request, Response } from "express";
 require("dotenv").config();
-const userModel = require("./../../models/users/userModel");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const transporter = require("../../configs/mail/nodemailer");
-const templateLogin = require("./../../configs/mail/template/template");
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import userModel from "./../../models/users/userModel";
+import transporter from "../../configs/mail/nodemailer";
+import { templateLogin } from "./../../configs/mail/template/template";
 
+const secretKey = process.env.SECRET_KEY || ""
 
-exports.loginWithPassword = async (req, res) => {
+export const loginWithPassword = async (req: Request, res: Response) => {
   try {
     const { phone, password } = req.body;
     if (phone && password) {
@@ -19,7 +21,7 @@ exports.loginWithPassword = async (req, res) => {
         if (validate) {
           const token = await jwt.sign(
             { id: user.id, role: user.role },
-            process.env.SECRET_KEY,
+            secretKey,
             {
               expiresIn: "3h",
             }
@@ -51,8 +53,7 @@ exports.loginWithPassword = async (req, res) => {
     res.status(500).send(err);
   }
 };
-
-exports.loginWithEmail_getCode =  async (req, res) => {
+export const loginWithEmail_getCode = async (req: Request, res: Response) => {
   try {
     const user = await userModel
       .findOne({ phone: req.cookies.captcha })
@@ -64,8 +65,8 @@ exports.loginWithEmail_getCode =  async (req, res) => {
 
       await transporter
         .sendMail(
-          templateLogin.templateLogin({
-            code: random_code,
+          templateLogin({
+            code: String(random_code),
             email: email,
           })
         )
@@ -78,8 +79,8 @@ exports.loginWithEmail_getCode =  async (req, res) => {
             message: "کد برای ایمیل شما ارسال شد",
           });
         })
-        .catch((response) => {
-          res.status(500).send("none login", response);
+        .catch((err: any) => {
+          res.status(500).send(err);
         });
     } else {
       res.status(404).json({
@@ -90,8 +91,7 @@ exports.loginWithEmail_getCode =  async (req, res) => {
     res.status(500).send(err);
   }
 }
-
-exports.loginWithEmail_validation =  async (req, res) => {
+export const loginWithEmail_validation = async (req: Request, res: Response) => {
   try {
     if (req.cookies.code_Email) {
       if (req.body.code_Email) {
@@ -105,11 +105,11 @@ exports.loginWithEmail_validation =  async (req, res) => {
           if (user) {
             const token = await jwt.sign(
               { id: user._id, role: user.role },
-              process.env.SECRET_KEY,
+              secretKey,
               {
                 expiresIn: "3h",
               }
-            );            
+            );
             res.clearCookie("captcha");
             res.clearCookie("code_Email");
             res.cookie("token", token, {

@@ -3,8 +3,9 @@ require("dotenv").config();
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt"
 import axios from "axios";
+import userModel from "./../../models/users/userModel";
 import transporter from "../../configs/mail/nodemailer";
-import { templateChangePasswordCode, templateLogin } from "../../configs/mail/template/template";
+import { templateChangePasswordCode } from "../../configs/mail/template/template";
 import random_code from "./../../utils/randomCode";
 import limiter_configuration from "./../../configs/limiter/checkLimit";
 import checkRateLimit from "./../../configs/limiter/checkLimit";
@@ -92,41 +93,47 @@ export const change_password_with_email = async (req: Request, res: Response) =>
     res.status(500).send(err);
   }
 };
-exports.change_password_with_password = async (req: Request, res: Response) => {
+export const change_password_with_password = async (req: Request, res: Response) => {
   const token = await jwt.verify(req.cookies.token, secretKey) as CustomJwtPayload
 
   if (req.body.password && req.body.prev_password) {
     const user = await userModel.findById(token.id).lean();
 
-    const validate = await bcrypt.compare(
-      String(req.body.prev_password),
-      String(user.password)
-    );
-    console.log("prev validate", validate);
-    if (validate) {
-      if (req.body.password.length >= 8) {
-        const hashed_password = await bcrypt.hash(
-          String(req.body.password),
-          11
-        );
-        await userModel
-          .updateOne({ _id: token.id }, { password: hashed_password })
-          .then(() => {
-            res.json({
-              message: "گذرواژه با موفقیت تغییر کرد",
+    if (user) {
+      const validate = await bcrypt.compare(
+        String(req.body.prev_password),
+        String(user.password)
+      );
+      console.log("prev validate", validate);
+      if (validate) {
+        if (req.body.password.length >= 8) {
+          const hashed_password = await bcrypt.hash(
+            String(req.body.password),
+            11
+          );
+          await userModel
+            .updateOne({ _id: token.id }, { password: hashed_password })
+            .then(() => {
+              res.json({
+                message: "گذرواژه با موفقیت تغییر کرد",
+              });
+            })
+            .catch((err: any) => {
+              res.status(500).send(err);
             });
-          })
-          .catch((err: any) => {
-            res.status(500).send(err);
+        } else {
+          res.status(422).json({
+            message: "گذرواژه عبور جدید شما باید حداقل 8 حرف داشته باشد",
           });
+        }
       } else {
-        res.status(422).json({
-          message: "گذرواژه عبور جدید شما باید حداقل 8 حرف داشته باشد",
+        res.status(401).json({
+          message: "گذرواژه قدیمی شما صحیح نیست",
         });
       }
     } else {
-      res.status(401).json({
-        message: "گذرواژه قدیمی شما صحیح نیست",
+      res.status(404).json({
+        message: "کاربر با این مشخصات پیدا نشد",
       });
     }
   } else {
@@ -135,7 +142,7 @@ exports.change_password_with_password = async (req: Request, res: Response) => {
     });
   }
 };
-exports.change_email = async (req: Request, res: Response) => {
+export const change_email = async (req: Request, res: Response) => {
   try {
     const { action } = req.params;
     const token = await jwt.verify(req.cookies.token, secretKey) as CustomJwtPayload
@@ -258,7 +265,7 @@ exports.change_email = async (req: Request, res: Response) => {
     res.status(500).send(err);
   }
 };
-exports.change_phone = async (req: Request, res: Response) => {
+export const change_phone = async (req: Request, res: Response) => {
   const { action } = req.params;
   const token = await jwt.verify(req.cookies.token, secretKey) as CustomJwtPayload
 
@@ -369,7 +376,7 @@ exports.change_phone = async (req: Request, res: Response) => {
     });
   }
 };
-exports.change_user_information = async (req: Request, res: Response) => {
+export const change_user_information = async (req: Request, res: Response) => {
   try {
     const token = await jwt.verify(req.cookies.token, secretKey) as CustomJwtPayload
     const validate_req_data = await validate_user(req.body);

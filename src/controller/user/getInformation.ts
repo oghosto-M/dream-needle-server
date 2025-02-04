@@ -6,7 +6,7 @@ require("dotenv").config();
 
 const secretKey = process.env.SECRET_KEY || ""
 
-exports.getInfo = async (req: Request, res: Response) => {
+export const getInfo = async (req: Request, res: Response) => {
   try {
     const token = jwt.verify(req.cookies.token, secretKey) as CustomJwtPayload
     if (token) {
@@ -31,7 +31,7 @@ exports.getInfo = async (req: Request, res: Response) => {
     res.status(500).send(err);
   }
 };
-exports.logOut = async (req: Request, res: Response) => {
+export const logOut = async (req: Request, res: Response) => {
   try {
     const token = jwt.verify(req.cookies.token, secretKey) as CustomJwtPayload
     if (token) {
@@ -56,7 +56,7 @@ exports.logOut = async (req: Request, res: Response) => {
     res.status(500).send(err);
   }
 };
-exports.set_admin = async (req: Request, res: Response) => {
+export const set_admin = async (req: Request, res: Response) => {
   try {
     const token = jwt.verify(req.cookies.token, secretKey) as CustomJwtPayload
     if (token) {
@@ -116,7 +116,7 @@ exports.set_admin = async (req: Request, res: Response) => {
     res.status(500).send(err);
   }
 };
-exports.editUser = async (req: Request, res: Response) => {
+export const editUser = async (req: Request, res: Response) => {
   const id = req.params.id;
   const user = await userModel.findById(req.params.id, "-password");
   const token = jwt.verify(req.cookies.token, secretKey) as CustomJwtPayload
@@ -158,7 +158,7 @@ exports.editUser = async (req: Request, res: Response) => {
     });
    }
 };
-exports.getAll = async (req: Request, res: Response) => {
+export const getAll = async (req: Request, res: Response) => {
   const page = parseInt(String(req.query.page)) || 1;
   const limit = 10;
   const searchTerm = req.query.search_phone || "";
@@ -183,7 +183,7 @@ exports.getAll = async (req: Request, res: Response) => {
     res.status(500).send(err);
   }
 };
-exports.getOne = async (req: Request, res: Response) => {
+export const getOne = async (req: Request, res: Response) => {
   const user = await userModel.findById(req.params.id, "-password");
   const token = jwt.verify(req.cookies.token, secretKey) as CustomJwtPayload
   if (user) {

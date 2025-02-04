@@ -1,31 +1,31 @@
 import express from "express";
 const authRouter = express.Router();
-import captcha from "./../../controller/auth/captcha";
-import login from "./../../controller/auth/login";
+import {get , validate} from "./../../controller/auth/captcha";
+import {loginWithEmail_getCode,loginWithEmail_validation,loginWithPassword} from "./../../controller/auth/login";
 import captchaValidation from "./../../middleware/captchaValidation";
-import register from "../../controller/auth/register";
+import {register , register_sendCode_email} from "../../controller/auth/register";
 import limiter from "./../../configs/limiter/auth/limiterAuth";
 
 // code captcha
-authRouter.get("/captcha", captcha.get);
-authRouter.post("/captcha", captcha.validate);
+authRouter.get("/captcha", get);
+authRouter.post("/captcha", validate);
 
 // login
 authRouter.post(
   "/loginWithPassword",
   captchaValidation,
-  login.loginWithPassword
+  loginWithPassword
 );
 authRouter.get(
   "/loginWithEmail",
   limiter,
   captchaValidation,
-  login.loginWithEmail_getCode
+  loginWithEmail_getCode
 );
 authRouter.post(
   "/loginWithEmail",
   captchaValidation,
-  login.loginWithEmail_validation
+  loginWithEmail_validation
 );
 // authRouter.post("/loginWithPhone", captcha.validate);
 
@@ -34,9 +34,9 @@ authRouter.post(
   "/register_sendCode_email",
   limiter,
   captchaValidation,
-  register.register_sendCode_email
+  register_sendCode_email
 );
-authRouter.post("/register", captchaValidation, register.register);
+authRouter.post("/register", captchaValidation, register);
 
 // forgot password
 // authRouter.get("/forgotPassword", captchaValidation, async (req, res) => {
