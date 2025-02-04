@@ -1,9 +1,9 @@
 import express from "express";
 const authRouter = express.Router();
-import {get , validate} from "./../../controller/auth/captcha";
-import {loginWithEmail_getCode,loginWithEmail_validation,loginWithPassword} from "./../../controller/auth/login";
+import { get, validate } from "./../../controller/auth/captcha";
+import { loginWithEmail_getCode, loginWithEmail_validation, loginWithPassword } from "./../../controller/auth/login";
 import captchaValidation from "./../../middleware/captchaValidation";
-import {register , register_sendCode_email} from "../../controller/auth/register";
+import { register, register_sendCode_email } from "../../controller/auth/register";
 import limiter from "./../../configs/limiter/auth/limiterAuth";
 
 // code captcha

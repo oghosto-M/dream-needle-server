@@ -14,6 +14,7 @@ import {
   change_phone
 } from "./../../controller/user/changeInfo";
 import limiter_code_0 from "./../../configs/limiter/user/code_0Limiter";
+import authorizationUser from "./../../middleware/authorizationUser";
 
 userRouter.post(
   "/set_admin",
@@ -43,22 +44,27 @@ userRouter.get(
 
 userRouter.post(
   "/change_user_information",
+  authorizationUser,
   change_user_information
 );
 userRouter.post(
   "/change_password_with_email/:action",
+  authorizationUser,
   change_password_with_email
 );
 userRouter.post(
   "/change_password_with_password",
+  authorizationUser,
   change_password_with_password
 );
 userRouter.post(
   "/change_email/:action",
+  authorizationUser,
   change_email
 );
 userRouter.post(
   "/change_phone/:action",
+  authorizationUser,
   change_phone
 );
 

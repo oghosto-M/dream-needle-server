@@ -45,23 +45,24 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // middleware import
-import authorizationAdmin from "./middleware/authorizationAdmin";
-import authorizationUser from "./middleware/authorizationUser";
-// const idMoongoseValidator = require("./middleware/idMoongoseValidator")
+
 import limiterUser from "./configs/limiter/user/limiterUser";
 
 // use middleware
+app.use(limiterUser)
 
 // import route
 import categoryRouter from "./router/category/categoryRouter";
+import productRouter from "./router/product/productRouter";
 import usersRouter from "./router/user/userRouter";
 import authRouter from "./router/auth/authRouter";
 
 
 // express router
 app.use("/api/auth", authRouter);
-app.use("/api/users", limiterUser, authorizationUser, usersRouter);
-app.use("/api/categories", limiterUser , categoryRouter);
+app.use("/api/users", usersRouter);
+app.use("/api/categories" , categoryRouter);
+app.use("/api/products" , productRouter);
 
 // app listen
 app.listen(process.env.PORT, () => {

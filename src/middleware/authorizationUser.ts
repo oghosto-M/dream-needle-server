@@ -6,6 +6,9 @@ require("dotenv").config();
 
 
 async function authorization(req: Request, res: Response, next: NextFunction): Promise<void> {
+  console.log(req);
+  console.log("awdawdawdawdawdawdawdawd");
+  
   const secretKey = process.env.SECRET_KEY;
   if (!secretKey) {
     res.status(500).json({

@@ -11,7 +11,7 @@ function idMoongoseValidator(req: Request, res: Response, next: NextFunction): P
         next();
       } else {
         res.status(400).json({
-          message: "this is not id",
+          message: "لطفا یک شناسه معتبر وارد کنید",
         });
       }
     } else {
