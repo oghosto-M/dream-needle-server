@@ -4,6 +4,7 @@ const productModel = new Schema(
     {
         active_status: {
             type: Boolean,
+            required: true
         },
         title: {
             type: String,
@@ -33,11 +34,11 @@ const productModel = new Schema(
         },
         gallery: {
             required: false,
-            type : Array
+            type: Array
         },
         properties: {
             required: false,
-            type : Array
+            type: Array
         },
         count_available: {
             type: Number,
@@ -49,7 +50,7 @@ const productModel = new Schema(
         },
         comment: {
             required: false,
-            type : Array
+            type: Array
         }
     },
     {

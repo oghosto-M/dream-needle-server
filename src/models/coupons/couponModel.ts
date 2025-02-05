@@ -1,9 +1,10 @@
 import moongose, { Schema } from "mongoose";
 
-const productModel = new Schema(
+const couponModel = new Schema(
     {
         active_status: {
             type: Boolean,
+            required:true
         },
         user: {
             type: moongose.Types.ObjectId,
@@ -40,6 +41,6 @@ const productModel = new Schema(
     }
 );
 
-const product = moongose.model("peoducts", productModel);
+const coupon = moongose.model("peoducts", couponModel);
 
-export default product;
+export default coupon;
