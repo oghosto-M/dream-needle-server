@@ -8,26 +8,26 @@ const validate_register = require("./../../validation/auth/registerValidate");
 const templateLogin = require("../../configs/mail/template/template");
 const transporter = require("../../configs/mail/nodemailer");
 
-require("dotenv").config()
-
+require("dotenv").config();
 
 export const register = async (req: Request, res: Response) => {
   try {
     if (req.cookies.code_Email_register) {
       if (req.body.email_code && req.body.email_code.length === 5) {
-        const compateCodeEmail = await bcrypt.compare(String(req.body.email_code), String(req.cookies.code_Email_register))
+        const compateCodeEmail = await bcrypt.compare(
+          String(req.body.email_code),
+          String(req.cookies.code_Email_register),
+        );
         if (compateCodeEmail) {
           const validate_req_data = await validate_register(req.body);
 
           if (validate_req_data === true) {
-
             const user_email = await userModel
               .findOne({ email: req.body.email })
               .lean();
             const user_phone = await userModel
               .findOne({ phone: req.body.phone })
               .lean();
-
 
             if (!user_phone) {
               if (!user_email) {
@@ -53,7 +53,7 @@ export const register = async (req: Request, res: Response) => {
                         process.env.SECRET_KEY,
                         {
                           expiresIn: "3h",
-                        }
+                        },
                       );
                       res.clearCookie("captcha");
                       res.clearCookie("code_Email_register");
@@ -67,7 +67,6 @@ export const register = async (req: Request, res: Response) => {
                     } else {
                       res.status(500).json({});
                     }
-
                   });
               } else {
                 res.status(401).json({
@@ -103,22 +102,24 @@ export const register = async (req: Request, res: Response) => {
   } catch (err) {
     res.status(500).send(err);
   }
-}
+};
 export const register_sendCode_email = async (req: Request, res: Response) => {
   try {
-    if (req.body.email && /[^@ \t\r\n]+@[^@ \t\r\n]+\.[^@ \t\r\n]+/g.test(req.body.email) === true) {
+    if (
+      req.body.email &&
+      /[^@ \t\r\n]+@[^@ \t\r\n]+\.[^@ \t\r\n]+/g.test(req.body.email) === true
+    ) {
       const random_code = Math.floor(10000 + Math.random() * 90000);
       const hashed_random_code = await bcrypt.hash(String(random_code), 11);
-      const user = await userModel.findOne({ email: req.body.email }).lean()
+      const user = await userModel.findOne({ email: req.body.email }).lean();
 
       if (!user) {
-
         await transporter
           .sendMail(
             templateLogin.templateRegisterCode({
               code: random_code,
               email: req.body.email,
-            })
+            }),
           )
           .then(() => {
             res.cookie("code_Email_register", hashed_random_code, {
@@ -128,18 +129,18 @@ export const register_sendCode_email = async (req: Request, res: Response) => {
             res.json({
               message: "کد برای ایمیل شما ارسال شد",
             });
-          })
+          });
       } else {
         res.status(401).json({
-          message: "کاربری با این ایمیل قبلا ثبت شده"
-        })
+          message: "کاربری با این ایمیل قبلا ثبت شده",
+        });
       }
     } else {
       res.status(422).json({
-        message: "درخواست شما باید شامل ایمیل معتبر باشد"
-      })
+        message: "درخواست شما باید شامل ایمیل معتبر باشد",
+      });
     }
   } catch (err) {
-    res.status(500).send(err)
+    res.status(500).send(err);
   }
-}
+};

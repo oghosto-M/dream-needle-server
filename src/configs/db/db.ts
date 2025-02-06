@@ -1,11 +1,11 @@
 //import moongose
-import moongose from "mongoose"
+import moongose from "mongoose";
 
 // import and configuration .env
 require("dotenv").config();
 
 // connect db
-  const connect = moongose
+const connect = moongose
   .connect(process.env.LINK_DB as string)
   .then(() => {
     console.log("moongose is ready");
@@ -15,4 +15,4 @@ require("dotenv").config();
   });
 
 // export db function
-module.exports = connect
+module.exports = connect;

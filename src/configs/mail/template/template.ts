@@ -1,6 +1,16 @@
 require("dotenv").config();
 
-const parent = ({ email, code, title, discription }: { email: string, code: string, title: string, discription: string }) => {
+const parent = ({
+  email,
+  code,
+  title,
+  discription,
+}: {
+  email: string;
+  code: string;
+  title: string;
+  discription: string;
+}) => {
   return {
     from: `"dream-needle.ir" <${process.env.ADDRESS_EMAIL}>`,
     to: email,
@@ -83,7 +93,13 @@ const parent = ({ email, code, title, discription }: { email: string, code: stri
   };
 };
 
-export const templateLogin = ({ email, code } : {email : string , code : string}) => {
+export const templateLogin = ({
+  email,
+  code,
+}: {
+  email: string;
+  code: string;
+}) => {
   return parent({
     email,
     code,
@@ -91,7 +107,13 @@ export const templateLogin = ({ email, code } : {email : string , code : string}
     discription: "این کد را در صفحه ورود وارد کنید",
   });
 };
-export const templateRegisterCode = ({ email, code } : {email : string , code : string}) => {
+export const templateRegisterCode = ({
+  email,
+  code,
+}: {
+  email: string;
+  code: string;
+}) => {
   return parent({
     email,
     code,
@@ -99,7 +121,13 @@ export const templateRegisterCode = ({ email, code } : {email : string , code : 
     discription: "این کد را در صفحه ثبت نام وارد کنید",
   });
 };
-export const templateChangePasswordCode = ({ email, code } : {email : string , code : string}) => {
+export const templateChangePasswordCode = ({
+  email,
+  code,
+}: {
+  email: string;
+  code: string;
+}) => {
   return parent({
     email,
     code,
@@ -107,7 +135,13 @@ export const templateChangePasswordCode = ({ email, code } : {email : string , c
     discription: "این کد را در صفحه تغیر گذرواژه وارد کنید",
   });
 };
-export const templateChangeEmailCode = ({ email, code } : {email : string , code : string}) => {
+export const templateChangeEmailCode = ({
+  email,
+  code,
+}: {
+  email: string;
+  code: string;
+}) => {
   return parent({
     email,
     code,

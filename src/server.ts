@@ -1,13 +1,12 @@
-
 // import and configoration express
 import express from "express";
 const app = express();
 
 // import and configoration .env
-require("dotenv").config()
+require("dotenv").config();
 
 //connect to db
-require("./configs/db/db")
+require("./configs/db/db");
 
 // cookie-parser configoration
 import cookieParser from "cookie-parser";
@@ -49,7 +48,7 @@ app.use(express.urlencoded({ extended: true }));
 import limiterUser from "./configs/limiter/user/limiterUser";
 
 // use middleware
-app.use(limiterUser)
+app.use(limiterUser);
 
 // import route
 import categoryRouter from "./router/category/categoryRouter";
@@ -57,12 +56,11 @@ import productRouter from "./router/product/productRouter";
 import usersRouter from "./router/user/userRouter";
 import authRouter from "./router/auth/authRouter";
 
-
 // express router
 app.use("/api/auth", authRouter);
 app.use("/api/users", usersRouter);
-app.use("/api/categories" , categoryRouter);
-app.use("/api/products" , productRouter);
+app.use("/api/categories", categoryRouter);
+app.use("/api/products", productRouter);
 
 // app listen
 app.listen(process.env.PORT, () => {

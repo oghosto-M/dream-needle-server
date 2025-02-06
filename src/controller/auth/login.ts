@@ -6,7 +6,7 @@ import userModel from "./../../models/users/userModel";
 import transporter from "../../configs/mail/nodemailer";
 import { templateLogin } from "./../../configs/mail/template/template";
 
-const secretKey = process.env.SECRET_KEY || ""
+const secretKey = process.env.SECRET_KEY || "";
 
 export const loginWithPassword = async (req: Request, res: Response) => {
   try {
@@ -16,7 +16,7 @@ export const loginWithPassword = async (req: Request, res: Response) => {
       if (user) {
         const validate = await bcrypt.compare(
           String(password),
-          String(user.password)
+          String(user.password),
         );
         if (validate) {
           const token = await jwt.sign(
@@ -24,7 +24,7 @@ export const loginWithPassword = async (req: Request, res: Response) => {
             secretKey,
             {
               expiresIn: "3h",
-            }
+            },
           );
           res.clearCookie("captcha");
           res.cookie("token", token, {
@@ -55,9 +55,7 @@ export const loginWithPassword = async (req: Request, res: Response) => {
 };
 export const loginWithEmail_getCode = async (req: Request, res: Response) => {
   try {
-    const user = await userModel
-      .findOne({ phone: req.cookies.captcha })
-      .lean();
+    const user = await userModel.findOne({ phone: req.cookies.captcha }).lean();
     if (user) {
       const { email } = user;
       const random_code = Math.floor(10000 + Math.random() * 90000);
@@ -68,7 +66,7 @@ export const loginWithEmail_getCode = async (req: Request, res: Response) => {
           templateLogin({
             code: String(random_code),
             email: email,
-          })
+          }),
         )
         .then(() => {
           res.cookie("code_Email", hashed_random_code, {
@@ -90,17 +88,22 @@ export const loginWithEmail_getCode = async (req: Request, res: Response) => {
   } catch (err) {
     res.status(500).send(err);
   }
-}
-export const loginWithEmail_validation = async (req: Request, res: Response) => {
+};
+export const loginWithEmail_validation = async (
+  req: Request,
+  res: Response,
+) => {
   try {
     if (req.cookies.code_Email) {
       if (req.body.code_Email) {
         const validate = await bcrypt.compare(
           String(req.body.code_Email),
-          String(req.cookies.code_Email)
+          String(req.cookies.code_Email),
         );
         if (validate === true) {
-          const user = await userModel.findOne({ phone: req.cookies.captcha }).lean();
+          const user = await userModel
+            .findOne({ phone: req.cookies.captcha })
+            .lean();
 
           if (user) {
             const token = await jwt.sign(
@@ -108,7 +111,7 @@ export const loginWithEmail_validation = async (req: Request, res: Response) => 
               secretKey,
               {
                 expiresIn: "3h",
-              }
+              },
             );
             res.clearCookie("captcha");
             res.clearCookie("code_Email");
@@ -142,5 +145,4 @@ export const loginWithEmail_validation = async (req: Request, res: Response) => 
   } catch (err) {
     res.status(500).send(err);
   }
-}
-
+};

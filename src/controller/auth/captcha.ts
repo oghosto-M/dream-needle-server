@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
 const Captcha = require("node-captcha-generator");
-import bcrypt from "bcrypt"
+import bcrypt from "bcrypt";
 import userModel from "./../../models/users/userModel";
 
 // code captcha
-export const get = async (req:Request, res:Response) => {
+export const get = async (req: Request, res: Response) => {
   try {
     const c = new Captcha({
       length: 4,
@@ -13,7 +13,7 @@ export const get = async (req:Request, res:Response) => {
         height: 50,
       },
     });
-    await c.toBase64(async (err:any, base64:string) => {
+    await c.toBase64(async (err: any, base64: string) => {
       if (err) {
         res.status(500).send(err);
       } else {
@@ -32,18 +32,18 @@ export const get = async (req:Request, res:Response) => {
     res.status(500).send(err);
   }
 };
-export const validate = async (req:Request, res:Response) => {
+export const validate = async (req: Request, res: Response) => {
   try {
     if (req.cookies.valueCode) {
       if (req.body?.valueCode && req.body?.phone) {
         const data = await bcrypt.compare(
           String(req.body.valueCode),
-          String(req.cookies.valueCode)
+          String(req.cookies.valueCode),
         );
-        const user = await userModel.findOne({ phone: req.body.phone }).lean();        
+        const user = await userModel.findOne({ phone: req.body.phone }).lean();
         if (data) {
           res.clearCookie("valueCode");
-          res.cookie("captcha" , user ? user.phone : "no_value" , {
+          res.cookie("captcha", user ? user.phone : "no_value", {
             maxAge: 7 * 60 * 1000,
             httpOnly: true,
           });
@@ -70,4 +70,3 @@ export const validate = async (req:Request, res:Response) => {
     res.status(500).send(err);
   }
 };
-

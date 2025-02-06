@@ -44,7 +44,7 @@ const userModel = new Schema(
     address: {
       type: String,
       required: true,
-      default : "مشخصاتی ثبت نشده",
+      default: "مشخصاتی ثبت نشده",
       minlength: 10,
       maxlength: 250,
     },
@@ -60,7 +60,7 @@ const userModel = new Schema(
   {
     timestamps: true,
     versionKey: false,
-  }
+  },
 );
 
 const user = moongose.model("users", userModel);

@@ -9,7 +9,7 @@ export const create_category = async (req: Request, res: Response) => {
     if (validation_category === true) {
       if (req.body.category_parent) {
         const id_valid = moongose.Types.ObjectId.isValid(
-          req.body.category_parent
+          req.body.category_parent,
         );
         if (id_valid === true) {
           const { type, category_parent, title, description } = req.body;
@@ -83,7 +83,7 @@ export const get_all_category = async (req: Request, res: Response) => {
   } catch (err) {
     res.status(500).send(err);
   }
-}
+};
 export const get_one_category = async (req: Request, res: Response) => {
   try {
     const category = await categoryModel.findById(req.params.id).lean();
@@ -94,4 +94,4 @@ export const get_one_category = async (req: Request, res: Response) => {
   } catch (err) {
     res.status(500).send(req.params);
   }
-} 
+};

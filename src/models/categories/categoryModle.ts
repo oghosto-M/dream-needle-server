@@ -5,7 +5,7 @@ import moongose, { Schema } from "mongoose";
 const categoryModel = new Schema(
   {
     type: {
-      type: ["blog" , "product" , "training"] ,
+      type: ["blog", "product", "training"],
       required: true,
     },
     category_parent: {
@@ -28,7 +28,7 @@ const categoryModel = new Schema(
   {
     timestamps: true,
     versionKey: false,
-  }
+  },
 );
 
 const category = moongose.model("categories", categoryModel);

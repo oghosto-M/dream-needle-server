@@ -1,14 +1,14 @@
 import { Request, Response } from "express";
-import jwt from "jsonwebtoken"
-import userModel from "./../../models/users/userModel"
+import jwt from "jsonwebtoken";
+import userModel from "./../../models/users/userModel";
 import { CustomJwtPayload } from "../../type";
 require("dotenv").config();
 
-const secretKey = process.env.SECRET_KEY || ""
+const secretKey = process.env.SECRET_KEY || "";
 
 export const getInfo = async (req: Request, res: Response) => {
   try {
-    const token = jwt.verify(req.cookies.token, secretKey) as CustomJwtPayload
+    const token = jwt.verify(req.cookies.token, secretKey) as CustomJwtPayload;
     if (token) {
       const user = await userModel.findById(token.id, "-password").lean();
       if (user) {
@@ -33,7 +33,7 @@ export const getInfo = async (req: Request, res: Response) => {
 };
 export const logOut = async (req: Request, res: Response) => {
   try {
-    const token = jwt.verify(req.cookies.token, secretKey) as CustomJwtPayload
+    const token = jwt.verify(req.cookies.token, secretKey) as CustomJwtPayload;
     if (token) {
       const user = await userModel.findById(token.id, "-password").lean();
       if (user) {
@@ -58,14 +58,14 @@ export const logOut = async (req: Request, res: Response) => {
 };
 export const set_admin = async (req: Request, res: Response) => {
   try {
-    const token = jwt.verify(req.cookies.token, secretKey) as CustomJwtPayload
+    const token = jwt.verify(req.cookies.token, secretKey) as CustomJwtPayload;
     if (token) {
       const user = await userModel.findById(token.id, "-password").lean();
       if (user) {
         if (
           req.body.phone_admin &&
           /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/g.test(
-            req.body.phone_admin
+            req.body.phone_admin,
           )
         ) {
           if (req.body.role) {
@@ -77,7 +77,7 @@ export const set_admin = async (req: Request, res: Response) => {
               await userModel
                 .updateOne(
                   { phone: req.body.phone_admin },
-                  { role: req.body.role }
+                  { role: req.body.role },
                 )
                 .then(() => {
                   res.json({
@@ -119,9 +119,8 @@ export const set_admin = async (req: Request, res: Response) => {
 export const editUser = async (req: Request, res: Response) => {
   const id = req.params.id;
   const user = await userModel.findById(req.params.id, "-password");
-  const token = jwt.verify(req.cookies.token, secretKey) as CustomJwtPayload
+  const token = jwt.verify(req.cookies.token, secretKey) as CustomJwtPayload;
   if (user) {
-
     if (user.role <= token.role) {
       res.status(403).json({
         message: "اجازه دست رسی به این کاربر را ندارید",
@@ -136,7 +135,7 @@ export const editUser = async (req: Request, res: Response) => {
         await userModel
           .updateOne(
             { _id: id },
-            { name: req.body.name, lastname: req.body.lastname }
+            { name: req.body.name, lastname: req.body.lastname },
           )
           .then(() => {
             res.json({
@@ -156,15 +155,17 @@ export const editUser = async (req: Request, res: Response) => {
     res.status(404).json({
       message: "کاربر مورد نظر پیدا نشد",
     });
-   }
+  }
 };
 export const getAll = async (req: Request, res: Response) => {
   const page = parseInt(String(req.query.page)) || 1;
   const limit = 10;
   const searchTerm = req.query.search_phone || "";
   try {
-    const token = jwt.verify(req.cookies.token, secretKey) as CustomJwtPayload
-    const query: Partial<Record<string, any>> = { role: { $gte: token.role + 1 } }
+    const token = jwt.verify(req.cookies.token, secretKey) as CustomJwtPayload;
+    const query: Partial<Record<string, any>> = {
+      role: { $gte: token.role + 1 },
+    };
     if (searchTerm) {
       query.phone = { $regex: searchTerm, $options: "i" };
     }
@@ -185,7 +186,7 @@ export const getAll = async (req: Request, res: Response) => {
 };
 export const getOne = async (req: Request, res: Response) => {
   const user = await userModel.findById(req.params.id, "-password");
-  const token = jwt.verify(req.cookies.token, secretKey) as CustomJwtPayload
+  const token = jwt.verify(req.cookies.token, secretKey) as CustomJwtPayload;
   if (user) {
     if (user.role <= token.role) {
       res.status(403).json({

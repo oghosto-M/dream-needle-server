@@ -26,7 +26,7 @@ const schema_user = {
       stringMax: "نام خانوادگی میتواند حداکثر 15 کاراکتر داشته باشد",
     },
   },
-  address : {
+  address: {
     required: false,
     type: "string",
     min: 10,
@@ -38,7 +38,6 @@ const schema_user = {
       stringMax: "آدرس سکونت میتواند حداکثر 100 کاراکتر داشته باشد",
     },
   },
-
 };
 
 const validate_user = v_user.compile(schema_user);

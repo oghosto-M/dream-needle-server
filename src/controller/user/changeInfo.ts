@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 require("dotenv").config();
 import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt"
+import bcrypt from "bcrypt";
 import axios from "axios";
 import userModel from "./../../models/users/userModel";
 import transporter from "../../configs/mail/nodemailer";
@@ -13,24 +13,27 @@ import { configs } from "./../../configs/sms/sendSms";
 import validate_user from "./../../validation/user_information_change/user_information_1_changer";
 import { CustomJwtPayload, user } from "../../type";
 
-const secretKey = process.env.SECRET_KEY || ""
+const secretKey = process.env.SECRET_KEY || "";
 
-export const change_password_with_email = async (req: Request, res: Response) => {
+export const change_password_with_email = async (
+  req: Request,
+  res: Response,
+) => {
   try {
     const { action } = req.params;
-    const token = jwt.verify(req.cookies.token, secretKey) as CustomJwtPayload
+    const token = jwt.verify(req.cookies.token, secretKey) as CustomJwtPayload;
     if (action === "get") {
       const limiter = checkRateLimit(String(req.ip));
       if (limiter) {
         const user = await userModel.findById(token.id).lean();
         if (user) {
-          const hashed_random_code = await bcrypt.hash(String(random_code), 11)
+          const hashed_random_code = await bcrypt.hash(String(random_code), 11);
           await transporter
             .sendMail(
               templateChangePasswordCode({
                 code: String(random_code),
                 email: user.email,
-              })
+              }),
             )
             .then(() => {
               res.cookie("code_Email_Change_password", hashed_random_code, {
@@ -58,7 +61,7 @@ export const change_password_with_email = async (req: Request, res: Response) =>
       if (req.cookies.code_Email_Change_password) {
         const validate = await bcrypt.compare(
           String(req.body.email_code),
-          String(req.cookies.code_Email_Change_password)
+          String(req.cookies.code_Email_Change_password),
         );
         if (validate === true) {
           if (req.body.password && req.body.password.length >= 8) {
@@ -93,8 +96,14 @@ export const change_password_with_email = async (req: Request, res: Response) =>
     res.status(500).send(err);
   }
 };
-export const change_password_with_password = async (req: Request, res: Response) => {
-  const token = await jwt.verify(req.cookies.token, secretKey) as CustomJwtPayload
+export const change_password_with_password = async (
+  req: Request,
+  res: Response,
+) => {
+  const token = (await jwt.verify(
+    req.cookies.token,
+    secretKey,
+  )) as CustomJwtPayload;
 
   if (req.body.password && req.body.prev_password) {
     const user = await userModel.findById(token.id).lean();
@@ -102,14 +111,14 @@ export const change_password_with_password = async (req: Request, res: Response)
     if (user) {
       const validate = await bcrypt.compare(
         String(req.body.prev_password),
-        String(user.password)
+        String(user.password),
       );
       console.log("prev validate", validate);
       if (validate) {
         if (req.body.password.length >= 8) {
           const hashed_password = await bcrypt.hash(
             String(req.body.password),
-            11
+            11,
           );
           await userModel
             .updateOne({ _id: token.id }, { password: hashed_password })
@@ -145,7 +154,10 @@ export const change_password_with_password = async (req: Request, res: Response)
 export const change_email = async (req: Request, res: Response) => {
   try {
     const { action } = req.params;
-    const token = await jwt.verify(req.cookies.token, secretKey) as CustomJwtPayload
+    const token = (await jwt.verify(
+      req.cookies.token,
+      secretKey,
+    )) as CustomJwtPayload;
     const user_by_email = await userModel
       .findOne({ email: req.body.email })
       .lean();
@@ -162,18 +174,18 @@ export const change_email = async (req: Request, res: Response) => {
             if (user) {
               const hashed_random_code = await bcrypt.hash(
                 String(random_code),
-                11
+                11,
               );
               const hashed_email = await bcrypt.hash(
                 String(req.body.email),
-                11
+                11,
               );
               await transporter
                 .sendMail(
                   templateChangePasswordCode({
                     code: String(random_code),
                     email: req.body.email,
-                  })
+                  }),
                 )
                 .then(() => {
                   res.cookie(
@@ -182,7 +194,7 @@ export const change_email = async (req: Request, res: Response) => {
                     {
                       maxAge: 2 * 60 * 1000,
                       httpOnly: true,
-                    }
+                    },
                   );
                   res.json({
                     message: "کد برای ایمیل شما ارسال شد",
@@ -216,19 +228,19 @@ export const change_email = async (req: Request, res: Response) => {
         if (req.body.email) {
           const validate_email = await bcrypt.compare(
             String(req.body.email),
-            String(req.cookies.code_Email_Change_Email.email)
+            String(req.cookies.code_Email_Change_Email.email),
           );
           if (validate_email === true) {
             const validate_code = await bcrypt.compare(
               String(req.body.code_Email),
-              String(req.cookies.code_Email_Change_Email.code)
+              String(req.cookies.code_Email_Change_Email.code),
             );
             if (validate_code === true) {
               await userModel
                 .findOneAndUpdate(
                   { _id: token.id },
                   { email: req.body.email },
-                  { new: true, fields: { password: 0 } }
+                  { new: true, fields: { password: 0 } },
                 )
                 .lean()
                 .then((response: user) => {
@@ -267,14 +279,17 @@ export const change_email = async (req: Request, res: Response) => {
 };
 export const change_phone = async (req: Request, res: Response) => {
   const { action } = req.params;
-  const token = await jwt.verify(req.cookies.token, secretKey) as CustomJwtPayload
+  const token = (await jwt.verify(
+    req.cookies.token,
+    secretKey,
+  )) as CustomJwtPayload;
 
   if (action === "get") {
     const limit = checkRateLimit(String(req.ip));
     if (limit) {
       if (
         /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/g.test(
-          req.body.phone
+          req.body.phone,
         ) === true
       ) {
         const user_by_phone = await userModel
@@ -284,16 +299,16 @@ export const change_phone = async (req: Request, res: Response) => {
           .lean();
         if (!user_by_phone) {
           await axios(
-            configs({ phone: req.body.phone, code: String(random_code) })
+            configs({ phone: req.body.phone, code: String(random_code) }),
           )
             .then(async () => {
               const hashed_phone = await bcrypt.hash(
                 String(req.body.phone),
-                11
+                11,
               );
               const hashed_random_code = await bcrypt.hash(
                 String(random_code),
-                11
+                11,
               );
               res.cookie(
                 "code_sms_Change_phone",
@@ -301,7 +316,7 @@ export const change_phone = async (req: Request, res: Response) => {
                 {
                   maxAge: 2 * 60 * 1000,
                   httpOnly: true,
-                }
+                },
               );
               res.json({
                 message: "کد برای شماره تلفن شما ارسال شد",
@@ -330,11 +345,11 @@ export const change_phone = async (req: Request, res: Response) => {
       if ((req.body.phone, req.body.code)) {
         const validate_phone = await bcrypt.compare(
           String(req.body.phone),
-          String(req.cookies.code_sms_Change_phone.phone)
+          String(req.cookies.code_sms_Change_phone.phone),
         );
         const validate_code = await bcrypt.compare(
           String(req.body.code),
-          String(req.cookies.code_sms_Change_phone.code)
+          String(req.cookies.code_sms_Change_phone.code),
         );
         if (validate_phone) {
           if (validate_code) {
@@ -342,7 +357,7 @@ export const change_phone = async (req: Request, res: Response) => {
               .findOneAndUpdate(
                 { _id: token.id },
                 { phone: req.body.phone },
-                { new: true, fields: { password: 0 } }
+                { new: true, fields: { password: 0 } },
               )
               .lean()
               .then((response: user) => {
@@ -378,7 +393,10 @@ export const change_phone = async (req: Request, res: Response) => {
 };
 export const change_user_information = async (req: Request, res: Response) => {
   try {
-    const token = await jwt.verify(req.cookies.token, secretKey) as CustomJwtPayload
+    const token = (await jwt.verify(
+      req.cookies.token,
+      secretKey,
+    )) as CustomJwtPayload;
     const validate_req_data = await validate_user(req.body);
 
     if (validate_req_data === true) {
@@ -390,7 +408,7 @@ export const change_user_information = async (req: Request, res: Response) => {
             lastname: req.body.lastname,
             address: req.body.address,
           },
-          { new: true, fields: { password: 0 } }
+          { new: true, fields: { password: 0 } },
         )
         .lean()
         .then((response: user) => {

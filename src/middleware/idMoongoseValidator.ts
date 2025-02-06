@@ -1,10 +1,14 @@
 import mongoose from "mongoose";
 import { Request, Response, NextFunction } from "express";
 
-function idMoongoseValidator(req: Request, res: Response, next: NextFunction): Promise<void> {
+function idMoongoseValidator(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
   return new Promise((reslov, reject) => {
     console.log(req.params);
-    
+
     if (req.params.id) {
       const id_valid = mongoose.Types.ObjectId.isValid(req.params.id);
       if (id_valid === true) {
@@ -17,8 +21,8 @@ function idMoongoseValidator(req: Request, res: Response, next: NextFunction): P
     } else {
       next();
     }
-  })
+  });
 }
 
-module.exports = idMoongoseValidator
+module.exports = idMoongoseValidator;
 export default idMoongoseValidator;

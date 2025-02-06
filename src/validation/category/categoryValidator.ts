@@ -1,4 +1,3 @@
-
 import validation from "fastest-validator";
 const v_categoty = new validation();
 
@@ -8,13 +7,13 @@ const schema_categoty = {
     ...{ type: "array", min: 1 },
     type: "array",
     items: {
-      type: "string",  
+      type: "string",
       enum: ["blog", "product", "training"],
-    }, 
+    },
     messages: {
       string: "تایپ باید تشکیل شده از حروف باشد",
       required: "تایپ یک فیلد اجباری است",
-      arrayMin:"شما باید حداقل یک تایپ را انتخاب کنید",
+      arrayMin: "شما باید حداقل یک تایپ را انتخاب کنید",
       stringEnum: "لطفا از تایپ های مشخص شده استفاده کنید",
       stringMin: "تایپ میتواند حداقل 2 کاراکتر داشته باشد",
       stringMax: "تایپ میتواند حداکثر 30 کاراکتر داشته باشد",
