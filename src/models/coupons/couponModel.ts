@@ -15,8 +15,8 @@ const couponModel = new Schema(
       required: true,
     },
     coupon_type: {
-      type: ["percentage", "toman"],
       required: true,
+      type : String
     },
     coupon_value: {
       type: String,
@@ -41,6 +41,6 @@ const couponModel = new Schema(
   },
 );
 
-const coupon = moongose.model("peoducts", couponModel);
+const coupon = moongose.model("coupon", couponModel);
 
 export default coupon;

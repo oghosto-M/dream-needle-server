@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import productValidator from "./../../validation/product/productValidator";
 import mongoose from "mongoose";
 import productModel from "./../../models/products/productModel";
+import categoryModle from "./../../models/categories/categoryModle";
 
 export const create_product = async (req: Request, res: Response) => {
   try {
@@ -11,45 +12,58 @@ export const create_product = async (req: Request, res: Response) => {
         const vategory_validate = await mongoose.Types.ObjectId.isValid(
           req.body.category,
         );
-        if (vategory_validate === true) {
-          const {
-            active_status,
-            title,
-            category,
-            low_description,
-            full_description,
-            price,
-            gallery,
-            properties,
-            count_available,
-            count_purchased,
-            comment,
-          } = req.body;
-          await productModel
-            .create({
-              title,
-              category,
-              low_description,
-              full_description,
-              price,
-              gallery,
-              properties,
-              count_available,
-              count_purchased,
-              comment,
-              active_status,
-            })
-            .then(() => {
-              res.json({
-                message: "محصول با موفقیت ساخته شد",
+        const category = await categoryModle.findById(req.body.category).lean()
+        if (category) {
+          if (category.type.some((i) => i === "product") === true) {
+            if (vategory_validate === true) {
+              const {
+                active_status,
+                title,
+                category,
+                low_description,
+                full_description,
+                price,
+                gallery,
+                properties,
+                count_available,
+                count_purchased,
+                comment,
+              } = req.body;
+              await productModel
+              .create({
+                title,
+                category,
+                low_description,
+                full_description,
+                price,
+                gallery,
+                properties,
+                count_available,
+                count_purchased,
+                comment,
+                active_status,
+              })
+              .then(() => {
+                res.json({
+                  message: "محصول با موفقیت ساخته شد",
+                });
+              })
+              .catch((err) => {
+                res.status(500).send(err);
               });
-            })
-            .catch((err) => {
-              res.status(500).send(err);
-            });
+            } else {
+              res.status(422).json({
+                message: "لطفا یک شناسه دسته بندی معتبر وارد کنید",
+              });
+            }
+          }else{
+            res.status(401).json({
+              message: "این دسته بندی مال محصولات نیست",
+            });            
+          }
         } else {
-          res.status(422).json({
-            message: "لطفا یک شناسه دسته بندی معتبر وارد کنید",
+          res.status(404).json({
+            message: "این دسته بندی یافت نشد",
           });
         }
       } else {

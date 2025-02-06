@@ -1,4 +1,4 @@
-import validation, { ValidationSchema } from "fastest-validator";
+import validation, { ValidationSchema, RuleCustom } from "fastest-validator";
 const v_coupon = new validation();
 
 const schema_coupon: ValidationSchema = {
@@ -48,9 +48,19 @@ const schema_coupon: ValidationSchema = {
   },
   end_date: {
     required: true,
-    type: "date",
+    type: "string",
+    custom(value: string, errors: {
+      type?: string,
+      message?: string
+    }[]) {
+      // بررسی فرمت تاریخ (ISO 8601)
+      if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/.test(value)) {
+        errors.push({ type: "dateFormat", message: "فرمت تاریخ نامعتبر است. لطفاً مقدار را در قالب ISO 8601 ارسال کنید." });
+      }
+      return value;
+    },
     messages: {
-      date: "زمان انقضا کوپن باید تشکیل شده از حروف باشد",
+      date: "زمان انقضا کوپن باید تشکیل شده از فرمت زمان باشد",
       required: "زمان انقضا کوپن یک فیلد اجباری است",
     },
   },

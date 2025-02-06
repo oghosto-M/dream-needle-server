@@ -73,7 +73,7 @@ const schema_product: ValidationSchema = {
     min: 0,
     integer: true,
     messages: {
-      number: "موجودی محصول باید تشکیل شده از حروف باشد",
+      number: "موجودی محصول باید تشکیل شده از اعداد باشد",
       required: "موجودی محصول یک فیلد اجباری است",
       numberMin: "موجودی محصول باید بیشتر از 0 باشد",
       numberInteger: "موجودی محصول یک عدد صحیح است",

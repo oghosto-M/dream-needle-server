@@ -110,7 +110,7 @@ export const loginWithEmail_validation = async (
               { id: user._id, role: user.role },
               secretKey,
               {
-                expiresIn: "3h",
+                expiresIn: "3h", 
               },
             );
             res.clearCookie("captcha");

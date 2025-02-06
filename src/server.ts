@@ -17,7 +17,6 @@ import helmet from "helmet";
 app.use(helmet());
 
 // CORS configoration
-
 import cors from "cors";
 const allowedOrigins = [
   "http://localhost:3000",
@@ -55,12 +54,14 @@ import categoryRouter from "./router/category/categoryRouter";
 import productRouter from "./router/product/productRouter";
 import usersRouter from "./router/user/userRouter";
 import authRouter from "./router/auth/authRouter";
+import couponRouter from "./router/coupon/couponRouter";
 
 // express router
 app.use("/api/auth", authRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/categories", categoryRouter);
 app.use("/api/products", productRouter);
+app.use("/api/Coupons", couponRouter);
 
 // app listen
 app.listen(process.env.PORT, () => {

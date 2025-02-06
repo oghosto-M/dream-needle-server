@@ -1,15 +1,15 @@
 import { Request, Response } from "express";
 import { user } from "../../type";
 
-const userModel = require("./../../models/users/userModel");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const validate_register = require("./../../validation/auth/registerValidate");
-const templateLogin = require("../../configs/mail/template/template");
-const transporter = require("../../configs/mail/nodemailer");
+import userModel from "./../../models/users/userModel";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import validate_register from "./../../validation/auth/registerValidate";
+import { templateLogin } from "../../configs/mail/template/template";
+import transporter from "../../configs/mail/nodemailer";
 
 require("dotenv").config();
-
+const secretKey = process.env.SECRET_KEY || "";
 export const register = async (req: Request, res: Response) => {
   try {
     if (req.cookies.code_Email_register) {
@@ -50,7 +50,7 @@ export const register = async (req: Request, res: Response) => {
                     if (response) {
                       const token = await jwt.sign(
                         { id: response._id, role: response },
-                        process.env.SECRET_KEY,
+                        secretKey,
                         {
                           expiresIn: "3h",
                         },
@@ -116,8 +116,8 @@ export const register_sendCode_email = async (req: Request, res: Response) => {
       if (!user) {
         await transporter
           .sendMail(
-            templateLogin.templateRegisterCode({
-              code: random_code,
+            templateLogin({
+              code: String(random_code),
               email: req.body.email,
             }),
           )

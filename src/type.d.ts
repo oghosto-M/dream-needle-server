@@ -7,8 +7,8 @@ export interface CustomJwtPayload extends JwtPayload {
 }
 export type user = {
   _id?: mongoose.Types.ObjectId;
-  name: string;
-  lastname: string;
+  name?: string;
+  lastname?: string;
   role: number;
   email: string;
   phone: string;
