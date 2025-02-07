@@ -1,47 +1,109 @@
 //dependensies : product 
 
+import jwt from "jsonwebtoken";
 import { Response, Request } from "express";
 import couponValidate from "./../../validation/coupon/couponValidate";
 import couponModel from "./../../models/coupons/couponModel";
 import productModel from "./../../models/products/productModel";
 import userModel from "./../../models/users/userModel";
 import mongoose from "mongoose";
+import { CustomJwtPayload } from "../../type";
+require('dotenv').config()
+
+const secretKey = process.env.SECRET_KEY || ""
 
 export const get_all_coupon = async (req: Request, res: Response) => {
+  const page = parseInt(String(req.query.page)) || 1;
+  const limit = 10;
   try {
+    const token = jwt.verify(
+      req.cookies.token,
+      secretKey,
+    ) as CustomJwtPayload;
+    const user = await userModel.findById(token.id).lean()
+
+    if (user) {
+
+      const query: Partial<Record<string, any>> = user.role <= 1 ? {} : { user: user?._id }
+
+      const coupons = await couponModel
+        .find(query)
+        .limit(limit)
+        .skip((page - 1) * limit)
+        .lean();
+      const count = await couponModel.countDocuments(query);
+      res.json({
+        count_coupon: count,
+        totalPages: Math.ceil(count / limit),
+        currentPage: page,
+        data: coupons,
+      });
+    } else {
+      res.status(404).json({
+        message: "کاربر مورد نظر شما یافت نشد"
+      })
+    }
   } catch (err) {
     res.status(500).send(err);
   }
 };
 export const get_one_coupon = async (req: Request, res: Response) => {
   try {
+    const token = jwt.verify(
+      req.cookies.token,
+      secretKey,
+    ) as CustomJwtPayload;
+    const coupon = await couponModel.findById(req.params.id).lean()
+    const user = await userModel.findById(token.id).lean()
+    if (coupon) {
+      if (user) {
+        if (user._id.toString() === coupon.user.toString() || user.role <= 1) {
+          res.json({
+            message: "تخفیف با موفقیت یافت شد",
+            data: coupon
+          })
+        } else {
+          res.status(403).json({
+            message: "شما اجازه دست رسی به این تخفیف را ندارید"
+          })
+        }
+      } else {
+        res.status(403).json({
+          message: "شما اجازه دست رسی به این تخفیف را ندارید"
+        })
+      }
+    } else {
+      res.status(404).json({
+        message: "تخفیف مورد نظر شما یافت نشد"
+      })
+    }
   } catch (err) {
     res.status(500).send(err);
   }
 };
 export const create_coupon = async (req: Request, res: Response) => {
-  const create_db = async () => {
-
-    const { active_status, user, product, coupon_type, coupon_value, used_count, usage_limit, end_date } = req.body
-    await couponModel.create({
-      active_status,
-      user,
-      product,
-      coupon_type,
-      coupon_value,
-      used_count,
-      usage_limit,
-      end_date,
-    }).then(() => {
-      res.json({
-        message: "تخفیف کاربر با موفقیت ساخته شد"
-      })
-    }).catch((err) => {
-      res.status(500).send(err)
-    })
-
-  }
   try {
+    const create_db = async () => {
+
+      const { active_status, user, product, coupon_type, coupon_value, used_count, usage_limit, end_date } = req.body
+      await couponModel.create({
+        active_status,
+        user,
+        product,
+        coupon_type,
+        coupon_value,
+        used_count,
+        usage_limit,
+        end_date,
+      }).then(() => {
+        res.json({
+          message: "تخفیف کاربر با موفقیت ساخته شد"
+        })
+      }).catch((err) => {
+        res.status(500).send(err)
+      })
+
+    }
     if (req.body.user && req.body.product) {
       const validate = await couponValidate(req.body)
       if (validate === true) {
@@ -96,31 +158,31 @@ export const create_coupon = async (req: Request, res: Response) => {
   }
 };
 export const update_one_coupen = async (req: Request, res: Response) => {
-  const { id } = req.params
-  const { active_status, coupon_value } = req.body
-
-  const update_db = async () => {
-    if (typeof active_status === "boolean" === true) {
-
-      await couponModel.findOneAndUpdate({ _id: id }, {
-        active_status,
-        coupon_value,
-      }, { new: true }).then((response) => {
-        res.json({
-          message: "تخفیف کاربر با موفقیت به روز شد",
-          data: response
-        })
-      }).catch((err) => {
-        res.status(500).send(err)
-      })
-    } else {
-      res.status(422).json({
-        message: "وضعیت فعال بودن را درست وارد کنید"
-      })
-    }
-  }
   try {
-    if (active_status && coupon_value) {
+    const { id } = req.params
+    const { active_status, coupon_value } = req.body
+
+    const update_db = async () => {
+      if (typeof active_status === "boolean" === true) {
+
+        await couponModel.findOneAndUpdate({ _id: id }, {
+          active_status,
+          coupon_value,
+        }, { new: true }).then((response) => {
+          res.json({
+            message: "تخفیف کاربر با موفقیت به روز شد",
+            data: response
+          })
+        }).catch((err) => {
+          res.status(500).send(err)
+        })
+      } else {
+        res.status(422).json({
+          message: "وضعیت فعال بودن را درست وارد کنید"
+        })
+      }
+    }
+    if (coupon_value) {
       const coupon = await couponModel.findById(id).lean()
       if (coupon) {
         const product = await productModel.findById(coupon.product).lean()
@@ -151,7 +213,7 @@ export const update_one_coupen = async (req: Request, res: Response) => {
       }
     } else {
       res.status(422).json({
-        message: "درخواست شما باید مقدار تخفیف و وضعیت تخفیف معتبر باشد "
+        message: "درخواست شما باید مقدار تخفیف معتبر باشد "
       })
     }
   } catch (err) {

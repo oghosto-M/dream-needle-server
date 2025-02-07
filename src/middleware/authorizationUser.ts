@@ -9,8 +9,6 @@ async function authorization(
   res: Response,
   next: NextFunction,
 ): Promise<void> {
-  console.log(req);
-  console.log("awdawdawdawdawdawdawdawd");
 
   const secretKey = process.env.SECRET_KEY;
   if (!secretKey) {
