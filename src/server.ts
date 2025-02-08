@@ -55,13 +55,15 @@ import productRouter from "./router/product/productRouter";
 import usersRouter from "./router/user/userRouter";
 import authRouter from "./router/auth/authRouter";
 import couponRouter from "./router/coupon/couponRouter";
+import discountRouter from "./router/discount/discountRouter";
 
 // express router
 app.use("/api/auth", authRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/categories", categoryRouter);
 app.use("/api/products", productRouter);
-app.use("/api/Coupons", couponRouter);
+app.use("/api/coupons", couponRouter);
+app.use("/api/discount", discountRouter);
 
 // app listen
 app.listen(process.env.PORT, () => {

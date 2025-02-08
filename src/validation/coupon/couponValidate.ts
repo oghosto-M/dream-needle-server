@@ -53,7 +53,6 @@ const schema_coupon: ValidationSchema = {
       type?: string,
       message?: string
     }[]) {
-      // بررسی فرمت تاریخ (ISO 8601)
       if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/.test(value)) {
         errors.push({ type: "dateFormat", message: "فرمت تاریخ نامعتبر است. لطفاً مقدار را در قالب ISO 8601 ارسال کنید." });
       }

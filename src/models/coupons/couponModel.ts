@@ -16,7 +16,8 @@ const couponModel = new Schema(
     },
     coupon_type: {
       required: true,
-      type : String
+      type : String,
+      enum : ["toman" , "percentage"]
     },
     coupon_value: {
       type: String,

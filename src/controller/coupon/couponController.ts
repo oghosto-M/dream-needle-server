@@ -1,4 +1,4 @@
-//dependensies : product 
+//dependensies : product , user
 
 import jwt from "jsonwebtoken";
 import { Response, Request } from "express";
@@ -84,7 +84,6 @@ export const get_one_coupon = async (req: Request, res: Response) => {
 export const create_coupon = async (req: Request, res: Response) => {
   try {
     const create_db = async () => {
-
       const { active_status, user, product, coupon_type, coupon_value, used_count, usage_limit, end_date } = req.body
       await couponModel.create({
         active_status,
@@ -113,23 +112,31 @@ export const create_coupon = async (req: Request, res: Response) => {
           if (req.body.product) {
             const product = await productModel.findById(req.body.product).lean()
             const user = await userModel.findById(req.body.user).lean()
-            if (product?.price && user) {
-              if (req.body.coupon_type === "percentage" && req.body.coupon_value <= 100 && req.body.coupon_value >= 0) {
-                create_db()
-              }
-              else if (req.body.coupon_type === "toman" && req.body.coupon_value <= product?.price && req.body.coupon_value >= 10000) {
-                create_db()
-              }
-              else {
-                res.status(422).json(req.body.coupon_type === "toman" ? {
+            const date_now = new Date()
+            const date_new = new Date(req.body.end_date)
+            if (date_now < date_new) {
+              if (product?.price && user) {
+                if (req.body.coupon_type === "percentage" && req.body.coupon_value <= 100 && req.body.coupon_value >= 0) {
+                  create_db()
+                }
+                else if (req.body.coupon_type === "toman" && req.body.coupon_value <= product?.price && req.body.coupon_value >= 10000) {
+                  create_db()
+                }
+                else {
+                  res.status(422).json(req.body.coupon_type === "toman" ? {
+                    messgae: "مقدار تخفیف نمیتواند از قیمت محصول بیشتر یا کمتر از 0 باشد"
+                  } : {
+                    messgae: "درصد تخفیف نمیتواند از 100 بیشتر یا کمتر از 0 باشد"
+                  })
+                }
+              } else {
+                res.status(422).json({
                   messgae: "مقدار تخفیف نمیتواند از قیمت محصول بیشتر یا کمتر از 0 باشد"
-                } : {
-                  messgae: "درصد تخفیف نمیتواند از 100 بیشتر یا کمتر از 0 باشد"
                 })
               }
             } else {
               res.status(422).json({
-                messgae: "محصول یا کاربر مورد نظر شما یافت نشد"
+                messgae: "زمان انقضا باید بعد از زمان حال باشد"
               })
             }
           } else {
