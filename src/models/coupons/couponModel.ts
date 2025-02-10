@@ -42,6 +42,6 @@ const couponModel = new Schema(
   },
 );
 
-const coupon = moongose.model("coupon", couponModel);
+const coupon = moongose.model("coupons", couponModel);
 
 export default coupon;

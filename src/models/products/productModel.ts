@@ -59,6 +59,6 @@ const productModel = new Schema(
   },
 );
 
-const product = moongose.model("peoducts", productModel);
+const product = moongose.model("products", productModel);
 
 export default product;

@@ -81,19 +81,17 @@ export const create_product = async (req: Request, res: Response) => {
   }
 };
 export const get_all_product = async (req: Request, res: Response) => {
+  try {
   const page = parseInt(String(req.query.page)) || 1;
   const limit = 10;
   const search_category = req.query.category || "";
   const [minPrice, maxPrice] = String(req.query.price)?.split("_").map(Number);
 
-  try {
     const query: Partial<Record<string, any>> = {};
 
     if (search_category) {
       query.category = new mongoose.Types.ObjectId(String(search_category));
     }
-    console.log(minPrice, maxPrice);
-
     if (minPrice) {
       query.price = { $lte: maxPrice };
     }
