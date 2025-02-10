@@ -23,7 +23,6 @@ export const get_all_coupon = async (req: Request, res: Response) => {
     const user = await userModel.findById(token.id).lean()
 
     if (user) {
-
       const query: Partial<Record<string, any>> = user.role <= 1 ? {} : { user: user?._id }
 
       const coupons = await couponModel
@@ -33,7 +32,7 @@ export const get_all_coupon = async (req: Request, res: Response) => {
         .lean();
       const count = await couponModel.countDocuments(query);
       res.json({
-        count_coupon: count,
+        count: count,
         totalPages: Math.ceil(count / limit),
         currentPage: page,
         data: coupons,

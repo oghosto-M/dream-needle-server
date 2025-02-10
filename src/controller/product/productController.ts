@@ -102,11 +102,15 @@ export const get_all_product = async (req: Request, res: Response) => {
       .find(query, "-full_description -comment")
       .limit(limit)
       .skip((page - 1) * limit)
+      .populate([
+        {path : "category"},
+        {path : "discount"}
+      ])
       .lean();
     console.log(products);
     const count = await productModel.countDocuments(query);
     res.json({
-      count_product: count,
+      count: count,
       totalPages: Math.ceil(count / limit),
       currentPage: page,
       products,

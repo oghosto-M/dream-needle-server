@@ -1,6 +1,6 @@
 //dependensies : product 
 
-import { Request, Response } from "express";
+import { Request, response, Response } from "express";
 import mongoose from "mongoose";
 import discountValidator from "./../../validation/discount/discountValidator";
 import discountModel from "./../../models/discounts/discountModel";
@@ -10,8 +10,8 @@ export const get_all_discount = async (req: Request, res: Response) => {
     try {
         const discounts = await discountModel.find({}).lean()
         res.json({
-            message : "تخفیفات با موفقیت دریافت شدند",
-            data : discounts
+            message: "تخفیفات با موفقیت دریافت شدند",
+            data: discounts
         })
     } catch (err) {
         res.status(500).send(err)
@@ -25,9 +25,13 @@ export const create_discount = async (req: Request, res: Response) => {
             await discountModel.create({
                 end_date, product, title, active_status, discount_type,
                 discount_value
-            }).then(() => {
-                res.json({
-                    message: "تخفیف شما با موفقیت ثبت شد"
+            }).then(async (res_create_discount) => {
+                await productModel.updateOne({ _id: product }, { discount: res_create_discount._id }).then(() => {
+                    res.json({
+                        message: "تخفیف شما با موفقیت ثبت شد"
+                    })
+                }).catch((err) => {
+                    res.status(500).send(err)
                 })
             }).catch((err) => {
                 res.status(500).send(err)
@@ -40,30 +44,37 @@ export const create_discount = async (req: Request, res: Response) => {
                 const date_now = new Date()
                 const date_new = new Date(req.body.end_date)
                 const product = await productModel.findById(req.body.product).lean()
-                if (date_now < date_new) {
-                    if (product?.price) {
-                        if (req.body.discount_type === "percentage" && req.body.discount_value <= 100 && req.body.discount_value >= 0) {
-                            create_db()
-                        }
-                        else if (req.body.discount_type === "toman" && req.body.discount_value <= product?.price && req.body.discount_value >= 10000) {
-                            create_db()
-                        }
-                        else {
-                            res.status(422).json(req.body.discount_type === "toman" ? {
+                if (product) {
+
+                    if (date_now < date_new) {
+                        if (product?.price) {
+                            if (req.body.discount_type === "percentage" && req.body.discount_value <= 100 && req.body.discount_value >= 0) {
+                                create_db()
+                            }
+                            else if (req.body.discount_type === "toman" && req.body.discount_value <= product?.price && req.body.discount_value >= 10000) {
+                                create_db()
+                            }
+                            else {
+                                res.status(422).json(req.body.discount_type === "toman" ? {
+                                    messgae: "مقدار تخفیف نمیتواند از قیمت محصول بیشتر یا کمتر از 0 باشد"
+                                } : {
+                                    messgae: "درصد تخفیف نمیتواند از 100 بیشتر یا کمتر از 0 باشد"
+                                })
+                            }
+                        } else {
+                            res.status(422).json({
                                 messgae: "مقدار تخفیف نمیتواند از قیمت محصول بیشتر یا کمتر از 0 باشد"
-                            } : {
-                                messgae: "درصد تخفیف نمیتواند از 100 بیشتر یا کمتر از 0 باشد"
                             })
                         }
+
                     } else {
                         res.status(422).json({
-                            messgae: "مقدار تخفیف نمیتواند از قیمت محصول بیشتر یا کمتر از 0 باشد"
+                            message: "لطفا زمان انقضا تخفیف را بعد از زمان حال وارد کنید"
                         })
                     }
-
                 } else {
-                    res.status(422).json({
-                        message: "لطفا زمان انقضا تخفیف را بعد از زمان حال وارد کنید"
+                    res.status(404).json({
+                        message: "محصول مورد نظر یافت نشد"
                     })
                 }
             } else {

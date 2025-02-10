@@ -17,7 +17,7 @@ const cartModel = new Schema(
       required: false,
       default : 1
     },
-    cart_coupon: {
+    coupon: {
       type: moongose.Types.ObjectId,
       required: false,
       default : null,

@@ -36,6 +36,6 @@ const discountModel = new Schema(
   },
 );
 
-const discount = moongose.model("discount", discountModel);
+const discount = moongose.model("discounts", discountModel);
 
 export default discount;

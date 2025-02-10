@@ -14,9 +14,6 @@ import userModel from "../../models/users/userModel";
 import cartModel from "../../models/carts/cartModel";
 require("dotenv").config();
 
-
-
-
 const secretKey = process.env.SECRET_KEY || "";
 
 export const get_all_cart = async (req: Request, res: Response) => {
@@ -33,15 +30,14 @@ export const get_all_cart = async (req: Request, res: Response) => {
         .limit(limit)
         .skip((page - 1) * limit)
         .populate([
-            { path: "user"},
-            { path: "product"},
-            { path: "cart_coupon"}
+            { path: "product" , select : "-comment"},
+            { path: "coupon"}
           ]).lean();
     try {
 
         const count = await cartModel.countDocuments(query);
         res.json({
-            count_carts: count,
+            count: count,
             totalPages: Math.ceil(count / limit),
             currentPage: page,
             carts,
@@ -117,7 +113,7 @@ export const update_cart_one = async (req: Request, res: Response) => {
                                         const end_date = new Date(coupon.end_date)
                                         if (now_date < end_date) {
                                             if (coupon.used_count >= coupon.usage_limit) {
-                                                await cartModel.updateOne({ _id: req.params.id }, { count_order: req.body.count, cart_coupon: req.body.coupon }).then(() => {
+                                                await cartModel.updateOne({ _id: req.params.id }, { count_order: req.body.count, coupon : req.body.coupon }).then(() => {
                                                     res.json({
                                                         message: "به روز رسانی تعداد محصول انجام شد",
                                                     })

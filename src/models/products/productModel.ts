@@ -14,6 +14,7 @@ const productModel = new Schema(
     },
     category: {
       type: moongose.Types.ObjectId,
+      ref: "categories",
       required: true,
     },
     low_description: {
@@ -47,6 +48,12 @@ const productModel = new Schema(
     count_purchased: {
       type: Number,
       required: true,
+    },
+    discount: {
+      required: false,
+      type: moongose.Types.ObjectId,
+      ref: "discounts",
+      default: null
     },
     comment: {
       required: false,
