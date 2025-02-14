@@ -116,6 +116,40 @@ export const set_admin = async (req: Request, res: Response) => {
     res.status(500).send(err);
   }
 };
+export const is_admin = async (req: Request, res: Response) => {
+  try {
+    if (req.headers.authorization) {
+      
+      const token = jwt.verify(req.headers.authorization, secretKey) as CustomJwtPayload;
+      const user = await userModel.findById(token.id).lean()
+      if (user) {
+        if (
+          user.role === 1 ||
+          user.role === 2 ||
+          user.role === 0
+        ) {
+          res.json({
+            message : "با موفقیت وارد شدید"
+          })
+        } else {
+          res.status(403).json({
+            message: "اجازه دست رسی به این قسمت را ندارید"
+          })
+        }
+      } else {
+        res.status(404).json({
+          message: "کاربری با شناسه مورد نظر پیدا نشد"
+        })
+      }
+    }else{
+      res.status(403).json({
+        message: "اجازه دست رسی به این بخش را ندارید"
+      })
+    }
+  } catch (err) {
+    res.send(err)
+  }
+}
 export const editUser = async (req: Request, res: Response) => {
   const id = req.params.id;
   const user = await userModel.findById(req.params.id, "-password");

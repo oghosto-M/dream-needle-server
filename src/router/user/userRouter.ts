@@ -12,6 +12,7 @@ import {
   getOne,
   logOut,
   set_admin,
+  is_admin
 } from "./../../controller/user/getInformation";
 import {
   change_user_information,
@@ -22,8 +23,10 @@ import {
 } from "./../../controller/user/changeInfo";
 import limiter_code_0 from "./../../configs/limiter/user/code_0Limiter";
 import authorizationUser from "./../../middleware/authorizationUser";
+import limiter from "../../configs/limiter/user/limiterUser";
 
 userRouter.post("/set_admin", limiter_code_0, authorizationCode_0, set_admin);
+userRouter.post("/is_admin", limiter, authorizationAdmin, is_admin);
 
 userRouter.get("/is_login", getInfo);
 userRouter.get("/logout", logOut);
