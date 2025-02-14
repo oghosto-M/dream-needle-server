@@ -5,6 +5,7 @@ import {
   create_category,
   get_one_category,
   update_category,
+  delete_category
 } from "../../controller/category/category";
 import authorizationManagement from "../../middleware/authorizationManagement";
 import idMoongoseValidator from "../../middleware/idMoongoseValidator";
@@ -20,6 +21,6 @@ categoryRouter.put(
   authorizationManagement,
   update_category,
 );
-categoryRouter.delete("/:id");
+categoryRouter.delete("/:id" , limiter, authorizationManagement, delete_category);
 
 export default categoryRouter;

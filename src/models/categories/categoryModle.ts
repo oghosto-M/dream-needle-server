@@ -11,6 +11,7 @@ const categoryModel = new Schema(
     category_parent: {
       type: moongose.Types.ObjectId,
       required: false,
+      ref : "categories"
     },
     title: {
       type: String,

@@ -43,7 +43,7 @@ export const create_category = async (req: Request, res: Response) => {
       }
     } else {
       res.status(422).json({
-        message: validation_category[0],
+        message: validation_category[0].message,
       });
     }
   } catch (err) {
@@ -52,10 +52,10 @@ export const create_category = async (req: Request, res: Response) => {
 };
 export const update_category = async (req: Request, res: Response) => {
   try {
-    if (req.body.title && req.body.title.length >= 2) {
+    if (req.body.title && req.body.title.length >= 2 && req.body.description && req.body.description.length >= 2) {
       const id = req.params.id;
       categoryModel
-        .updateOne({ _id: id }, { title: req.body.title })
+        .updateOne({ _id: id }, { title: req.body.title, description: req.body.description })
         .then(() => {
           res.json({
             message: "نام دسته بندی با موفقیت تغیر کرد",
@@ -66,7 +66,7 @@ export const update_category = async (req: Request, res: Response) => {
         });
     } else {
       res.status(422).json({
-        message: "نام دسته بندی اجباری است",
+        message: "نام و توضیحات دسته بندی اجباری است",
       });
     }
   } catch (err) {
@@ -95,3 +95,28 @@ export const get_one_category = async (req: Request, res: Response) => {
     res.status(500).send(req.params);
   }
 };
+export const delete_category = async (req: Request, res: Response): Promise<void> => {
+  try {
+    async function deleteCategoryAndChildren(categoryId: any): Promise<void> {
+      const children = await categoryModel.find({ category_parent: categoryId });
+
+      for (let child of children) {
+        await deleteCategoryAndChildren(child._id);
+      }
+
+      await categoryModel.findByIdAndDelete(categoryId);
+    }
+
+    const categoryExists = await categoryModel.findById(req.params.id);
+    if (!categoryExists) {
+       res.status(404).json({ message: "دسته‌بندی موردنظر یافت نشد" });
+    }
+
+    await deleteCategoryAndChildren(req.params.id);
+
+     res.status(200).json({ message: "دسته‌بندی و تمام زیرمجموعه‌های آن حذف شدند" });
+  } catch (err) {
+     res.status(500).send(err);
+  }
+};
+

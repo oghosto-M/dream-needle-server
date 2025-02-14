@@ -15,15 +15,13 @@ const schema_categoty = {
       required: "تایپ یک فیلد اجباری است",
       arrayMin: "شما باید حداقل یک تایپ را انتخاب کنید",
       stringEnum: "لطفا از تایپ های مشخص شده استفاده کنید",
-      stringMin: "تایپ میتواند حداقل 2 کاراکتر داشته باشد",
-      stringMax: "تایپ میتواند حداکثر 30 کاراکتر داشته باشد",
     },
   },
   title: {
     required: true,
     type: "string",
     min: 2,
-    max: 15,
+    max: 30,
     messages: {
       string: "نام دسته بندی باید تشکیل شده از حروف باشد",
       required: "نام دسته بندی یک فیلد اجباری است",
@@ -35,7 +33,7 @@ const schema_categoty = {
     required: false,
     type: "string",
     min: 10,
-    max: 100,
+    max: 250,
     messages: {
       string: "توضیحات دسته بندی باید تشکیل شده از حروف باشد",
       required: "توضیحات دسته بندی یک فیلد اجباری است",
