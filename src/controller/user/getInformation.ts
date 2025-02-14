@@ -117,39 +117,37 @@ export const set_admin = async (req: Request, res: Response) => {
   }
 };
 export const is_admin = async (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization;
+  console.log("this is auth head",authHeader);
   try {
-    if (req.headers.authorization) {
-      
-      const token = jwt.verify(req.headers.authorization, secretKey) as CustomJwtPayload;
-      const user = await userModel.findById(token.id).lean()
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      const token = authHeader.split(" ")[1];
+      const decoded = jwt.verify(token, secretKey) as { id: string };
+      const user = await userModel.findById(decoded.id).lean();
       if (user) {
-        if (
-          user.role === 1 ||
-          user.role === 2 ||
-          user.role === 0
-        ) {
-          res.json({
-            message : "با موفقیت وارد شدید"
-          })
-        } else {
+        if (![0, 1, 2].includes(user.role)) {
           res.status(403).json({
-            message: "اجازه دست رسی به این قسمت را ندارید"
-          })
+            message: "اجازه دسترسی ندارید"
+          });
+        } else {
+          res.json({ message: "با موفقیت وارد شدید" });
         }
       } else {
         res.status(404).json({
-          message: "کاربری با شناسه مورد نظر پیدا نشد"
-        })
+          message: "کاربری با این شناسه پیدا نشد"
+        });
       }
-    }else{
+    } else {
       res.status(403).json({
-        message: "اجازه دست رسی به این بخش را ندارید"
-      })
+        message: "توکن معتبر ارسال نشده است"
+      });
     }
+
+
   } catch (err) {
-    res.send(err)
+    res.status(500).send(err);
   }
-}
+};
 export const editUser = async (req: Request, res: Response) => {
   const id = req.params.id;
   const user = await userModel.findById(req.params.id, "-password");
