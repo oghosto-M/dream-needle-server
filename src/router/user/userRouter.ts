@@ -26,7 +26,7 @@ import authorizationUser from "./../../middleware/authorizationUser";
 import limiter from "../../configs/limiter/user/limiterUser";
 
 userRouter.post("/set_admin", limiter_code_0, authorizationCode_0, set_admin);
-userRouter.get("/is_admin", limiter, authorizationAdmin, is_admin);
+userRouter.get("/is_admin", limiter, is_admin);
 
 userRouter.get("/is_login", getInfo);
 userRouter.get("/logout", logOut);

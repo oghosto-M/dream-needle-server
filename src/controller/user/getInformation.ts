@@ -130,7 +130,7 @@ export const is_admin = async (req: Request, res: Response) => {
             message: "اجازه دسترسی ندارید"
           });
         } else {
-          res.json({ message: "با موفقیت وارد شدید" });
+          res.json({ message: "با موفقیت وارد شدید" , is_admin : true });
         }
       } else {
         res.status(404).json({
@@ -142,8 +142,6 @@ export const is_admin = async (req: Request, res: Response) => {
         message: "توکن معتبر ارسال نشده است"
       });
     }
-
-
   } catch (err) {
     res.status(500).send(err);
   }
