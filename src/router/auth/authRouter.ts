@@ -8,8 +8,8 @@ import {
 } from "./../../controller/auth/login";
 import captchaValidation from "./../../middleware/captchaValidation";
 import {
-  register,
-  register_sendCode_email,
+  register_sendCode_phone,
+  verify_register_phone
 } from "../../controller/auth/register";
 import limiter from "./../../configs/limiter/auth/limiterAuth";
 
@@ -18,28 +18,32 @@ authRouter.get("/captcha", get);
 authRouter.post("/captcha", validate);
 
 // login
-authRouter.post("/loginWithPassword", captchaValidation, loginWithPassword);
+authRouter.post("/login_with_password", captchaValidation, loginWithPassword);
 authRouter.get(
-  "/loginWithEmail",
+  "/login_with_email",
   limiter,
   captchaValidation,
   loginWithEmail_getCode,
 );
 authRouter.post(
-  "/loginWithEmail",
+  "/login_with_email",
   captchaValidation,
   loginWithEmail_validation,
 );
-// authRouter.post("/loginWithPhone", captcha.validate);
 
 // register
-authRouter.post(
-  "/register_sendCode_email",
+authRouter.get(
+  "/register_sendCode_phone",
   limiter,
   captchaValidation,
-  register_sendCode_email,
+  register_sendCode_phone,
 );
-authRouter.post("/register", captchaValidation, register);
+authRouter.post(
+  "/register_sendCode_phone",
+  limiter,
+  captchaValidation,
+  verify_register_phone,
+);
 
 // forgot password
 // authRouter.get("/forgotPassword", captchaValidation, async (req, res) => {
