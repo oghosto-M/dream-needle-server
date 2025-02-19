@@ -57,12 +57,13 @@ import authRouter from "./router/auth/authRouter";
 import couponRouter from "./router/coupon/couponRouter";
 import discountRouter from "./router/discount/discountRouter";
 import cartRouter from "./router/cart/cartRouter";
-import userModel from "./models/users/userModel";
- 
-const setter = async()=>{
-  await userModel.updateOne({phone : "09398896930"} , {role : 0})
-}
-setter()
+
+// import userModel from "./models/users/userModel"; 
+// const setter = async()=>{
+//   await userModel.updateOne({phone : "09398896930"} , {role : 0})
+// }
+// setter()
+
 // express router
 app.use("/api/auth", authRouter);
 app.use("/api/users", usersRouter);
