@@ -4,9 +4,7 @@ import { user } from "../../type";
 import userModel from "./../../models/users/userModel";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import validate_register from "./../../validation/auth/registerValidate";
 import { configs } from "../../configs/sms/sendSms";
-import transporter from "../../configs/mail/nodemailer";
 import axios from "axios";
 
 require("dotenv").config();
@@ -23,11 +21,11 @@ export const register_sendCode_phone = async (req: Request, res: Response) => {
       const user = await userModel.findOne({ phone: req.body.phone }).lean();
 
       if (!user) {
-       await axios(
+        await axios(
           configs({ phone: req.body.phone, code: String(random_code) }),
         )
           .then(() => {
-            res.cookie("code_phone_register", {code : hashed_random_code , phone : req.body.phone}, {
+            res.cookie("code_phone_register", { code: hashed_random_code, phone: req.body.phone }, {
               maxAge: 2 * 60 * 1000,
               httpOnly: true,
             });
@@ -54,34 +52,65 @@ export const verify_register_phone = async (req: Request, res: Response) => {
     const cookie_phone = req.cookies.code_phone_register
     if (
       req.body.phone &&
+      req.body.email &&
+      /[^@ \t\r\n]+@[^@ \t\r\n]+\.[^@ \t\r\n]+/g.test(req.body.email) === true &&
       /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/g.test(req.body.phone) === true
     ) {
       if (req.body.phone === cookie_phone.phone) {
         if (req.body.code?.length === 5) {
-          
-          const code_validate = await bcrypt.compare(req.body.code , cookie_phone.code)
-          if (code_validate  === true) {
-            if (req.body.password &&  req.body.password.length >= 8) {
-          const hashed_password = await bcrypt.hash(req.body.password , 11)
 
-              await userModel.create({
-                name : "نام ثبت نشده",
-                lastname :"نام خانوادگی ثبت نشده",
-                phone : req.body.phone,
-                email : "آدرس ایمیل ثبت نشده",
-                password : hashed_password,
-                email_verify : false,
-                phone_verify : true ,
-                address : "محل سکونت مشخصی ثبت نشده",
-                role : 3
-              }).then(()=>{
-                res.json({
-                  message : "ثبت نام شما با موفقیت انجام شد"
-                })
-              }).catch((err)=>{
-                res.status(500).send(err)
-              })
-            }else{
+          const code_validate = await bcrypt.compare(req.body.code, cookie_phone.code)
+          if (code_validate === true) {
+            if (req.body.password && req.body.password.length >= 8) {
+              const hashed_password = await bcrypt.hash(req.body.password, 11)
+              const user_phone = await userModel.findOne({ phone: req.body.phone }).lean()
+              const user_email = await userModel.findOne({ email: req.body.email }).lean()
+
+              if (!user_phone) {
+                if (!user_email) {
+
+                  await userModel.create({
+                    name: "نام ثبت نشده",
+                    lastname: "نام خانوادگی ثبت نشده",
+                    phone: req.body.phone,
+                    email: req.body.email,
+                    password: hashed_password,
+                    email_verify: false,
+                    phone_verify: true,
+                    address: "محل سکونت مشخصی ثبت نشده",
+                    role: 3
+                  }).then(async (response) => {
+
+                    const token = await jwt.sign(
+                      { id: response._id, role: response.role },
+                      secretKey,
+                      {
+                        expiresIn: "3h",
+                      },
+                    );
+                    res.clearCookie("captcha")
+                    res.clearCookie("code_phone_register")
+                    res.cookie("token", token, {
+                      maxAge: 3 * 60 * 60 * 1000,
+                      httpOnly: true,
+                    });
+                    res.json({
+                      message: "ثبت نام شما با موفقیت انجام شد"
+                    })
+                  }).catch((err) => {
+                    res.status(500).send(err)
+                  })
+                } else {
+                  res.status(404).json({
+                    message: "این ایمیل قبلا ثبت شده است",
+                  });
+                }
+              } else {
+                res.status(404).json({
+                  message: "این شماره قبلا ثبت شده است",
+                });
+              }
+            } else {
               res.status(422).json({
                 message: "درخواست شما باید شامل گذرواژه 8 رقمی باشد",
               });
@@ -91,19 +120,19 @@ export const verify_register_phone = async (req: Request, res: Response) => {
               message: "کد نامعتبر است",
             });
           }
-        }else{
+        } else {
           res.status(422).json({
             message: "درخواست شما باید شامل کد تایید پنج رقمی باشد",
           });
         }
-      }else{
+      } else {
         res.status(422).json({
           message: "شماره تلفن شما با شماره تلفن اولیه برابر نیست",
         });
       }
     } else {
       res.status(422).json({
-        message: "درخواست شما باید شامل شماره تلفن معتبر باشد",
+        message: "درخواست شما باید شامل شماره تلفن و ایمیل معتبر باشد",
       });
     }
   } catch (err) {

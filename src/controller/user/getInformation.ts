@@ -8,18 +8,25 @@ const secretKey = process.env.SECRET_KEY || "";
 
 export const getInfo = async (req: Request, res: Response) => {
   try {
-    const token = jwt.verify(req.cookies.token, secretKey) as CustomJwtPayload;
-    if (token) {
-      const user = await userModel.findById(token.id, "-password").lean();
-      if (user) {
-        res.json({
-          message: "شما لاگین هستید",
-          is_login: true,
-          data: user,
-        });
+    if (req.cookies.token) {
+
+      const token = jwt.verify(req.cookies.token, secretKey) as CustomJwtPayload;
+      if (token) {
+        const user = await userModel.findById(token.id, "-password").lean();
+        if (user) {
+          res.json({
+            message: "شما لاگین هستید",
+            is_login: true,
+            data: user,
+          });
+        } else {
+          res.status(404).json({
+            message: "کاربر با این مشخصات پیدا نشد",
+          });
+        }
       } else {
-        res.status(404).json({
-          message: "کاربر با این مشخصات پیدا نشد",
+        res.status(403).json({
+          message: "اجازه دست رسی به این بخش را ندارید",
         });
       }
     } else {
@@ -56,7 +63,6 @@ export const logOut = async (req: Request, res: Response) => {
     res.status(500).send(err);
   }
 };
-
 export const is_admin = async (req: Request, res: Response) => {
   const authHeader = req.headers.authorization;
   try {
@@ -70,7 +76,7 @@ export const is_admin = async (req: Request, res: Response) => {
             message: "اجازه دسترسی ندارید"
           });
         } else {
-          res.json({ message: "با موفقیت وارد شدید" , is_admin : true });
+          res.json({ message: "با موفقیت وارد شدید", is_admin: true });
         }
       } else {
         res.status(404).json({
@@ -94,7 +100,7 @@ export const is_user = async (req: Request, res: Response) => {
       const decoded = jwt.verify(token, secretKey) as { id: string };
       const user = await userModel.findById(decoded.id).lean();
       if (user) {
-          res.json({ message: "با موفقیت وارد شدید" , is_user : true });
+        res.json({ message: "با موفقیت وارد شدید", is_user: true });
       } else {
         res.status(404).json({
           message: "کاربری با این شناسه پیدا نشد"

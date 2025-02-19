@@ -26,6 +26,7 @@ const userModel = new Schema(
       unique: true,
       minlength: 8,
       maxlength: 50,
+      match: /[^@ \t\r\n]+@[^@ \t\r\n]+\.[^@ \t\r\n]+/g,
     },
     phone: {
       type: String,
