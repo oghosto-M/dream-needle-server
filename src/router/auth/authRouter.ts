@@ -2,8 +2,8 @@ import express from "express";
 const authRouter = express.Router();
 import { get, validate } from "./../../controller/auth/captcha";
 import {
-  loginWithEmail_getCode,
-  loginWithEmail_validation,
+  login_withE_phonegetCode,
+  login_with_phone_validation,
   loginWithPassword,
 } from "./../../controller/auth/login";
 import captchaValidation from "./../../middleware/captchaValidation";
@@ -20,27 +20,26 @@ authRouter.post("/captcha", validate);
 // login
 authRouter.post("/login_with_password", captchaValidation, loginWithPassword);
 authRouter.get(
-  "/login_with_email",
+  "/login_with_phone",
   limiter,
   captchaValidation,
-  loginWithEmail_getCode,
+  login_withE_phonegetCode,
 );
 authRouter.post(
-  "/login_with_email",
+  "/login_with_phone",
   captchaValidation,
-  loginWithEmail_validation,
+  login_with_phone_validation,
 );
 
 // register
-authRouter.get(
+authRouter.post(
   "/register_sendCode_phone",
   limiter,
   captchaValidation,
   register_sendCode_phone,
 );
 authRouter.post(
-  "/register_sendCode_phone",
-  limiter,
+  "/register_phone",
   captchaValidation,
   verify_register_phone,
 );

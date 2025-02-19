@@ -6,13 +6,13 @@ const userModel = new Schema(
       type: String,
       required: true,
       minlength: 2,
-      maxlength: 20,
+      maxlength: 40,
     },
     lastname: {
       type: String,
       required: true,
       minlength: 2,
-      maxlength: 20,
+      maxlength: 40,
     },
     role: {
       type: Number,
