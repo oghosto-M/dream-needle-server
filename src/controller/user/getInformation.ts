@@ -56,69 +56,9 @@ export const logOut = async (req: Request, res: Response) => {
     res.status(500).send(err);
   }
 };
-export const set_admin = async (req: Request, res: Response) => {
-  try {
-    const token = jwt.verify(req.cookies.token, secretKey) as CustomJwtPayload;
-    if (token) {
-      const user = await userModel.findById(token.id, "-password").lean();
-      if (user) {
-        if (
-          req.body.phone_admin &&
-          /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/g.test(
-            req.body.phone_admin,
-          )
-        ) {
-          if (req.body.role) {
-            if (
-              req.body.role === 1 ||
-              req.body.role === 2 ||
-              req.body.role === 3
-            ) {
-              await userModel
-                .updateOne(
-                  { phone: req.body.phone_admin },
-                  { role: req.body.role },
-                )
-                .then(() => {
-                  res.json({
-                    message: "کاربر به عنوان ادمین در نظر گرفته شد ",
-                  });
-                })
-                .catch((err) => {
-                  res.status(500).send(err);
-                });
-            } else {
-              res.status(422).json({
-                message: "سطح کاربری صحیح را انتخاب کنید",
-              });
-            }
-          } else {
-            res.status(422).json({
-              message: "درخواست شما باید شامل سطح کاربر",
-            });
-          }
-        } else {
-          res.status(422).json({
-            message: "لطفا از یک شماره تلفن معتبر استفاده کنید",
-          });
-        }
-      } else {
-        res.status(404).json({
-          message: "کاربر با این مشخصات پیدا نشد",
-        });
-      }
-    } else {
-      res.status(403).json({
-        message: "اجازه دست رسی به این بخش را ندارید",
-      });
-    }
-  } catch (err) {
-    res.status(500).send(err);
-  }
-};
+
 export const is_admin = async (req: Request, res: Response) => {
   const authHeader = req.headers.authorization;
-  console.log("this is auth head",authHeader);
   try {
     if (authHeader && authHeader.startsWith("Bearer ")) {
       const token = authHeader.split(" ")[1];
@@ -132,6 +72,29 @@ export const is_admin = async (req: Request, res: Response) => {
         } else {
           res.json({ message: "با موفقیت وارد شدید" , is_admin : true });
         }
+      } else {
+        res.status(404).json({
+          message: "کاربری با این شناسه پیدا نشد"
+        });
+      }
+    } else {
+      res.status(403).json({
+        message: "توکن معتبر ارسال نشده است"
+      });
+    }
+  } catch (err) {
+    res.status(500).send(err);
+  }
+};
+export const is_user = async (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization;
+  try {
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      const token = authHeader.split(" ")[1];
+      const decoded = jwt.verify(token, secretKey) as { id: string };
+      const user = await userModel.findById(decoded.id).lean();
+      if (user) {
+          res.json({ message: "با موفقیت وارد شدید" , is_user : true });
       } else {
         res.status(404).json({
           message: "کاربری با این شناسه پیدا نشد"
